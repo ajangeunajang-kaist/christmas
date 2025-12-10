@@ -32,6 +32,13 @@ export default function Home() {
     }
   };
 
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setLetter(e.target.value);
+    // 높이 자동 조정
+    e.target.style.height = "auto";
+    e.target.style.height = e.target.scrollHeight + "px";
+  };
+
   const handleSubmit = () => {
     // 저장 로직 추가 예정
     setIsAnimating(true);
@@ -70,11 +77,11 @@ export default function Home() {
         >
           <textarea
             value={letter}
-            onChange={(e) => setLetter(e.target.value)}
+            onChange={handleTextareaChange}
             placeholder="Write about your most memorable moment this year—
 a time with loved ones, a small accomplishment, or a moment of gratitude.
 You can also share a wish you hope to come true in 2026."
-            className="w-full min-h-[30vh] p-4 text-xl resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full min-h-[30vh] p-4 text-xl focus:outline-none resize-none overflow-hidden"
           />
 
           {/* Image Upload Section */}
@@ -139,7 +146,10 @@ You can also share a wish you hope to come true in 2026."
         {/* Footer */}
         <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center font-[family-name:var(--font-eb-garamond)]">
           The Way We Reminisce ✨ From{" "}
-          <a href="/team" className="mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors">
+          <a
+            href="/team"
+            className="mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors"
+          >
             생성하는 루돌프
           </a>
         </p>
