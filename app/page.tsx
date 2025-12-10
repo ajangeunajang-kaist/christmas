@@ -49,14 +49,14 @@ export default function Home() {
         <div className="text-center">
           <div className="text-[20vw]">🎄</div>
           <h1
-            className="text-[clamp(4rem,6vw,5rem)] leading-none text-[#424242] dark:text-red-400 mb-4"
+            className="text-[clamp(4rem,6vw,5rem)] leading-none text-[#424242] dark:text-red-400 "
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
           >
             The Way We Reminisce
           </h1>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 바라는
-            소망을 기록해보세요
+          <p className="my-12 text-2xl leading-tight font-[family-name:var(--font-eb-garamond)]">
+            Reflect on 2025 and record a memorable moment or write a
+            wish for the coming year!
           </p>
         </div>
 
@@ -71,22 +71,31 @@ export default function Home() {
           <textarea
             value={letter}
             onChange={(e) => setLetter(e.target.value)}
-            placeholder="올해 가장 기억에 남는 순간을 적어보세요. 사랑하는 사람들과 함께한 시간, 이루었던 작은 성취들, 감사한 순간들을 떠올려보세요. 2026년을 맞아 간절히 이루고 싶은 소망을 적어봐도 좋아요."
-            className="w-full h-[50vh] p-4 text-lg resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
+            placeholder="Write about your most memorable moment this year—
+a time with loved ones, a small accomplishment, or a moment of gratitude.
+You can also share a wish you hope to come true in 2026."
+            className="w-full h-[30vh] p-4 text-xl resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
           />
 
           {/* Image Upload Section */}
-          <div className="mt-6">
-            <label className="block mb-3 text-lg font-semibold text-zinc-700 dark:text-zinc-300">
-              📷 추억의 사진 한 장
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="block w-full text-sm text-zinc-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 dark:file:bg-red-900 dark:file:text-red-200"
-            />
-          </div>
+          {!imagePreview && (
+            <div className="mt-6">
+              <label className="block text-center text-[#b8baa8] mb-3 text-lg font-semibold">
+                Send with a Photo!
+              </label>
+              <label className="block text-center w-full text-center cursor-pointer">
+                <div className="w-full border-2 border-[#b8baa8] border-dotted text-[#b8baa8] p-32 leading-none font-semibold transition-all">
+                  Find a Photo
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          )}
 
           {/* Image Preview */}
           {imagePreview && (
@@ -96,27 +105,27 @@ export default function Home() {
                 alt="Uploaded memory"
                 width={600}
                 height={400}
-                className="w-full h-auto max-h-96 object-cover rounded-lg border-4 border-zinc-200 dark:border-zinc-700"
+                className="w-full h-auto max-h-96 object-cover border-zinc-200 dark:border-zinc-700"
               />
               <button
                 onClick={() => setImagePreview(null)}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
+                className="absolute top-2 right-2 bg-[#CFD1C3] text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-[#b8baa8] transition-all"
               >
                 ✕
               </button>
             </div>
           )}
-
-          {/* Submit Button */}
-          <button
-            onClick={handleSubmit}
-            disabled={!letter.trim() || isAnimating}
-            style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
-            className="w-full mt-8 py-4 bg-[#CFD1C3] text-white text-3xl rounded-full hover:bg-[#b8baa8] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-          >
-            Create Your Monument
-          </button>
         </div>
+
+        {/* Submit Button */}
+        <button
+          onClick={handleSubmit}
+          disabled={!letter.trim() || isAnimating}
+          style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
+          className="mt-8 p-8 bg-[#424242] text-white text-3xl rounded-[100%] hover:bg-[#b8baa8] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+        >
+          Send Your Letter!
+        </button>
 
         {/* Christmas Stocking Animation */}
         <div
@@ -128,7 +137,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center">
+        <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center font-[family-name:var(--font-eb-garamond)]">
           The Way We Reminisce ✨ From 생성하는 루돌프
         </p>
       </main>
