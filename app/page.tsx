@@ -7,6 +7,7 @@ export default function Home() {
   const [letter, setLetter] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const font = new FontFace(
@@ -32,30 +33,38 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
-    // 여기에 저장 로직을 추가할 수 있습니다
-    alert("당신의 이야기를 담아 모뉴먼트를 생성하고 있어요! 🎄");
+    setIsAnimating(true);
+
+    setTimeout(() => {
+      alert("당신의 이야기를 담아 모뉴먼트를 생성하고 있어요! 🎄");
+      setIsAnimating(false);
+    }, 2000);
   };
 
   return (
-    <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3]">
+    <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3] overflow-hidden">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Header */}
         <div className="text-center">
           <div className="text-[20vw]">🎄</div>
           <h1
-            className="text-[clamp(3rem,6vw,5rem)] text-[#424242] dark:text-red-400 mb-2"
+            className="text-[clamp(4rem,6vw,5rem)] leading-none text-[#424242] dark:text-red-400 mb-4"
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
           >
             The Way We Reminisce
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 소망을
+            2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 바라는 소망을
             기록해보세요
           </p>
         </div>
 
         {/* Letter Writing Section */}
-        <div className="w-full h-full bg-white dark:bg-zinc-900  shadow-2xl p-8">
+        <div
+          className={`w-full h-full bg-white dark:bg-zinc-900 shadow-2xl p-8 transition-all duration-1000 ${
+            isAnimating ? 'opacity-0 scale-50 translate-y-96' : 'opacity-100 scale-100 translate-y-0'
+          }`}
+        >
           <textarea
             value={letter}
             onChange={(e) => setLetter(e.target.value)}
@@ -98,12 +107,21 @@ export default function Home() {
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            disabled={!letter.trim()}
+            disabled={!letter.trim() || isAnimating}
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
-            className="w-full mt-8 py-4 bg-[#CFD1C3] text-white text-3xl rounded-full hover:from-red-600 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            className="w-full mt-8 py-4 bg-[#CFD1C3] text-white text-3xl rounded-full hover:bg-[#b8baa8] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
             Create Your Monument
           </button>
+        </div>
+
+        {/* Christmas Stocking Animation */}
+        <div
+          className={`fixed bottom-0 right-10 text-[70vw] transition-all duration-1000 ${
+            isAnimating ? 'translate-y-0 scale-110' : 'translate-y-full'
+          }`}
+        >
+          🧦
         </div>
 
         {/* Footer */}
