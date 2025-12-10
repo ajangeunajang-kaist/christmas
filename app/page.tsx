@@ -91,7 +91,7 @@ You can also share a wish you hope to come true in 2026."
                 Send with a Photo!
               </label>
               <label className="block text-center w-full text-center cursor-pointer">
-                <div className="w-full border-2 border-[#b8baa8] border-dotted text-[#b8baa8] py-32 leading-none font-semibold transition-all">
+                <div className="w-full border-2 border-[#b8baa8] border-dotted text-[#b8baa8] py-[10vh] leading-none font-semibold transition-all">
                   Find a Photo
                 </div>
                 <input
