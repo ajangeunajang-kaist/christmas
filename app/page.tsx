@@ -54,7 +54,7 @@ export default function Home() {
           >
             The Way We Reminisce
           </h1>
-          <p className="my-12 text-2xl leading-tight font-[family-name:var(--font-eb-garamond)]">
+          <p className="my-12 text-lg lg:text-2xl leading-tight font-[family-name:var(--font-eb-garamond)]">
             Reflect on 2025 and record a memorable moment or write a wish for
             the coming year!
           </p>
@@ -84,7 +84,7 @@ You can also share a wish you hope to come true in 2026."
                 Send with a Photo!
               </label>
               <label className="block text-center w-full text-center cursor-pointer">
-                <div className="w-full border-2 border-[#b8baa8] border-dotted text-[#b8baa8] p-32 leading-none font-semibold transition-all">
+                <div className="w-full border-2 border-[#b8baa8] border-dotted text-[#b8baa8] py-32 leading-none font-semibold transition-all">
                   Find a Photo
                 </div>
                 <input
