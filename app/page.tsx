@@ -1,11 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [letter, setLetter] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [fontLoaded, setFontLoaded] = useState(false);
+
+  useEffect(() => {
+    const font = new FontFace(
+      "Trattatello",
+      "url(/font/Trattatello.woff) format('woff')"
+    );
+
+    font.load().then((loadedFont) => {
+      document.fonts.add(loadedFont);
+      setFontLoaded(true);
+    });
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,12 +37,16 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-black dark:to-green-950 font-sans">
+    <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3]">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-red-600 dark:text-red-400 mb-2">
-            🎄 크리스마스 추억 편지 🎅
+          <div className="text-[20vw]">🎄</div>
+          <h1
+            className="text-[clamp(3rem,6vw,5rem)] text-[#424242] dark:text-red-400 mb-2"
+            style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
+          >
+            The Way We Reminisce
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
             2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 소망을
@@ -38,12 +55,12 @@ export default function Home() {
         </div>
 
         {/* Letter Writing Section */}
-        <div className="w-full bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-8 border-4 border-red-200 dark:border-red-900">
+        <div className="w-full h-full bg-white dark:bg-zinc-900  shadow-2xl p-8">
           <textarea
             value={letter}
             onChange={(e) => setLetter(e.target.value)}
             placeholder="올해 가장 기억에 남는 순간을 적어보세요. 사랑하는 사람들과 함께한 시간, 이루었던 작은 성취들, 감사한 순간들을 떠올려보세요. 2026년을 맞아 간절히 이루고 싶은 소망을 적어봐도 좋아요."
-            className="w-full h-64 p-4 text-lg border-2 border-zinc-200 dark:border-zinc-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full h-[50vh] p-4 text-lg resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
           />
 
           {/* Image Upload Section */}
@@ -82,15 +99,16 @@ export default function Home() {
           <button
             onClick={handleSubmit}
             disabled={!letter.trim()}
-            className="w-full mt-8 py-4 bg-gradient-to-r from-red-500 to-green-500 text-white text-xl font-bold rounded-full hover:from-red-600 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
+            className="w-full mt-8 py-4 bg-[#CFD1C3] text-white text-3xl rounded-full hover:from-red-600 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
-            🎁 추억 저장하기
+            Create Your Monument
           </button>
         </div>
 
         {/* Footer */}
         <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center">
-          소중한 이야기를 간직하고 새해를 맞이하세요 ✨ From 생성하는 루돌프
+          The Way We Reminisce ✨ From 생성하는 루돌프
         </p>
       </main>
     </div>
