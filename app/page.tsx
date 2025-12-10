@@ -33,6 +33,7 @@ export default function Home() {
   };
 
   const handleSubmit = () => {
+    // 저장 로직 추가 예정
     setIsAnimating(true);
 
     setTimeout(() => {
@@ -54,15 +55,17 @@ export default function Home() {
             The Way We Reminisce
           </h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-400">
-            2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 바라는 소망을
-            기록해보세요
+            2025년을 돌아보며 기억에 남는 순간, 혹은 새해를 맞이하며 바라는
+            소망을 기록해보세요
           </p>
         </div>
 
         {/* Letter Writing Section */}
         <div
           className={`w-full h-full bg-white dark:bg-zinc-900 shadow-2xl p-8 transition-all duration-1000 ${
-            isAnimating ? 'opacity-0 scale-50 translate-y-96' : 'opacity-100 scale-100 translate-y-0'
+            isAnimating
+              ? "opacity-0 scale-50 translate-y-96"
+              : "opacity-100 scale-100 translate-y-0"
           }`}
         >
           <textarea
@@ -117,11 +120,11 @@ export default function Home() {
 
         {/* Christmas Stocking Animation */}
         <div
-          className={`fixed bottom-0 right-10 text-[70vw] transition-all duration-1000 ${
-            isAnimating ? 'translate-y-0 scale-110' : 'translate-y-full'
+          className={`fixed bottom-0 left-0 text-center w-full text-[70vw] transition-all duration-1000 ${
+            isAnimating ? "translate-y-0 scale-110" : "translate-y-full"
           }`}
         >
-          🧦
+          🎁
         </div>
 
         {/* Footer */}
