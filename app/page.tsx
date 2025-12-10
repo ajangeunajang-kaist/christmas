@@ -44,7 +44,7 @@ export default function Home() {
     setIsAnimating(true);
 
     setTimeout(() => {
-      alert("당신의 이야기를 담아 모뉴먼트를 생성하고 있어요! 🎄");
+      alert("Your story is becoming a Christmas Mornaments 🎄");
       setIsAnimating(false);
     }, 2000);
   };
