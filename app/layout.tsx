@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: "2025년을 돌아보며 기억에 남는 순간과 새해 소망을 기록해보세요",
   openGraph: {
     title: "The Way We Reminisce",
-    description: "2025년을 돌아보며 기억에 남는 순간과 새해 소망을 기록해보세요",
+    description: "From 생성하는 루돌프",
     images: [
       {
         url: "/img/og.png",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "The Way We Reminisce",
-    description: "2025년을 돌아보며 기억에 남는 순간과 새해 소망을 기록해보세요",
+    description: "From 생성하는 루돌프",
     images: ["/img/og.png"],
   },
 };

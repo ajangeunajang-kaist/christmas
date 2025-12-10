@@ -55,8 +55,8 @@ export default function Home() {
             The Way We Reminisce
           </h1>
           <p className="my-12 text-2xl leading-tight font-[family-name:var(--font-eb-garamond)]">
-            Reflect on 2025 and record a memorable moment or write a
-            wish for the coming year!
+            Reflect on 2025 and record a memorable moment or write a wish for
+            the coming year!
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function Home() {
             placeholder="Write about your most memorable moment this year—
 a time with loved ones, a small accomplishment, or a moment of gratitude.
 You can also share a wish you hope to come true in 2026."
-            className="w-full h-[30vh] p-4 text-xl resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
+            className="w-full min-h-[30vh] p-4 text-xl resize-none focus:outline-none dark:bg-zinc-800 dark:text-zinc-100"
           />
 
           {/* Image Upload Section */}
@@ -105,7 +105,7 @@ You can also share a wish you hope to come true in 2026."
                 alt="Uploaded memory"
                 width={600}
                 height={400}
-                className="w-full h-auto max-h-96 object-cover border-zinc-200 dark:border-zinc-700"
+                className="w-full h-auto max-h-96 object-cover border-zinc-200 saturate-60 opacity-90 dark:border-zinc-700"
               />
               <button
                 onClick={() => setImagePreview(null)}
@@ -129,7 +129,7 @@ You can also share a wish you hope to come true in 2026."
 
         {/* Christmas Stocking Animation */}
         <div
-          className={`fixed bottom-0 left-0 text-center w-full text-[70vw] transition-all duration-1000 ${
+          className={`fixed bottom-0 left-0 text-center w-full text-[40vw] transition-all duration-1000 ${
             isAnimating ? "translate-y-0 scale-110" : "translate-y-full"
           }`}
         >
@@ -138,7 +138,10 @@ You can also share a wish you hope to come true in 2026."
 
         {/* Footer */}
         <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center font-[family-name:var(--font-eb-garamond)]">
-          The Way We Reminisce ✨ From 생성하는 루돌프
+          The Way We Reminisce ✨ From{" "}
+          <a href="/team" className="mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors">
+            생성하는 루돌프
+          </a>
         </p>
       </main>
     </div>
