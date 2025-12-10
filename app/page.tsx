@@ -81,7 +81,7 @@ export default function Home() {
             placeholder="Write about your most memorable moment this year—
 a time with loved ones, a small accomplishment, or a moment of gratitude.
 You can also share a wish you hope to come true in 2026."
-            className="w-full min-h-[30vh] p-4 text-xl focus:outline-none resize-none overflow-hidden"
+            className="w-full min-h-[30vh] p-4 text-lg focus:outline-none resize-none overflow-hidden"
           />
 
           {/* Image Upload Section */}
