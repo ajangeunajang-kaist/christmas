@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "The Way We Reminisce",
-  description: "2025년을 돌아보며 기억에 남는 순간과 새해 소망을 기록해보세요",
+  description: "Make your Mornament with your stories",
   openGraph: {
     title: "The Way We Reminisce",
     description: "From 생성하는 루돌프",
