@@ -39,14 +39,39 @@ export default function Home() {
     e.target.style.height = e.target.scrollHeight + "px";
   };
 
-  const handleSubmit = () => {
-    // 저장 로직 추가 예정
+  const handleSubmit = async () => {
     setIsAnimating(true);
 
-    setTimeout(() => {
-      alert("Your story is becoming a Christmas Mornaments 🎄");
+    try {
+      const formData = new FormData();
+      formData.append("text", letter);
+
+      if (imagePreview) {
+        // imagePreview를 Blob으로 변환
+        const response = await fetch(imagePreview);
+        const blob = await response.blob();
+        formData.append("image", blob, "memory.jpg");
+      }
+
+      const result = await fetch("/api/letters", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await result.json();
+
+      if (data.success) {
+        setTimeout(() => {
+          alert("Your story is becoming a Christmas Mornament 🎄");
+          setIsAnimating(false);
+          setLetter("");
+          setImagePreview(null);
+        }, 2000);
+      }
+    } catch (error) {
+      alert("Failed to save letter");
       setIsAnimating(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -78,9 +103,7 @@ export default function Home() {
           <textarea
             value={letter}
             onChange={handleTextareaChange}
-            placeholder="Write about your most memorable moment this year—
-a time with loved ones, a small accomplishment, or a moment of gratitude.
-You can also share a wish you hope to come true in 2026."
+            placeholder="Write about your most memorable moment this year—a time with loved ones, a small accomplishment, or a moment of gratitude. You can also share a wish you hope to come true in 2026."
             className="w-full min-h-[35vh] p-4 text-lg focus:outline-none resize-none overflow-hidden"
           />
 
