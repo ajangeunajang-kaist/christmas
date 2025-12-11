@@ -6,9 +6,9 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const ornamentId = formData.get('ornamentId') as string;
     const ornamentName = formData.get('ornamentName') as string;
-    const story = formData.get('story') as string; // message → story
+    const story = formData.get('story') as string;
     const image = formData.get('image') as File | null;
-    const objZip = formData.get('objZip') as File | null;
+    const asset3d = formData.get('3dAsset') as File | null; // objZip → 3dAsset
     const podcast = formData.get('podcast') as File | null;
     const bgm = formData.get('bgm') as File | null;
 
@@ -21,9 +21,9 @@ export async function POST(request: Request) {
     let existingData: any = {
       id: ornamentId,
       ornamentName: '',
-      story: '', // message → story
+      story: '',
       imageUrl: null,
-      objZipUrl: null,
+      asset3dUrl: null, // objZipUrl → asset3dUrl
       podcastUrl: null,
       bgmUrl: null,
       createdAt: new Date().toISOString(),
@@ -50,13 +50,13 @@ export async function POST(request: Request) {
       imageUrl = blob.url;
     }
 
-    let objZipUrl = existingData.objZipUrl;
-    if (objZip) {
-      const blob = await put(`3d-objects/${ornamentId}_${timestamp}_${objZip.name}`, objZip, {
+    let asset3dUrl = existingData.asset3dUrl; // objZipUrl → asset3dUrl
+    if (asset3d) {
+      const blob = await put(`3d-assets/${ornamentId}_${timestamp}_${asset3d.name}`, asset3d, { // 3d-objects → 3d-assets
         access: 'public',
-        contentType: 'application/zip',
+        contentType: 'model/gltf-binary', // application/zip → model/gltf-binary
       });
-      objZipUrl = blob.url;
+      asset3dUrl = blob.url;
     }
 
     let podcastUrl = existingData.podcastUrl;
@@ -77,16 +77,16 @@ export async function POST(request: Request) {
       bgmUrl = blob.url;
     }
 
-    const updatedStory = story || existingData.story; // updatedMessage → updatedStory
+    const updatedStory = story || existingData.story;
     const updatedOrnamentName = ornamentName || existingData.ornamentName;
 
     const letterData = {
       ...existingData,
       id: ornamentId,
       ornamentName: updatedOrnamentName,
-      story: updatedStory, // message → story
+      story: updatedStory,
       imageUrl,
-      objZipUrl,
+      asset3dUrl, // objZipUrl → asset3dUrl
       podcastUrl,
       bgmUrl,
       updatedAt: new Date().toISOString()
