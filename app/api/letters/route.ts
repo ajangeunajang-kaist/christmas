@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const ornamentId = formData.get('ornamentId') as string;
     const ornamentName = formData.get('ornamentName') as string;
-    const text = formData.get('text') as string;
+    const story = formData.get('story') as string; // message → story
     const image = formData.get('image') as File | null;
     const objZip = formData.get('objZip') as File | null;
     const podcast = formData.get('podcast') as File | null;
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     let existingData: any = {
       id: ornamentId,
       ornamentName: '',
-      text: '',
+      story: '', // message → story
       imageUrl: null,
       objZipUrl: null,
       podcastUrl: null,
@@ -77,14 +77,14 @@ export async function POST(request: Request) {
       bgmUrl = blob.url;
     }
 
-    const updatedText = text || existingData.text;
+    const updatedStory = story || existingData.story; // updatedMessage → updatedStory
     const updatedOrnamentName = ornamentName || existingData.ornamentName;
 
     const letterData = {
       ...existingData,
       id: ornamentId,
       ornamentName: updatedOrnamentName,
-      text: updatedText,
+      story: updatedStory, // message → story
       imageUrl,
       objZipUrl,
       podcastUrl,
