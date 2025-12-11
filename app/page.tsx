@@ -44,10 +44,12 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      formData.append("text", letter);
+      // ornamentId 추가 (고유 ID 생성)
+      const ornamentId = `ornament_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      formData.append("ornamentId", ornamentId);
+      formData.append("story", letter); 
 
       if (imagePreview) {
-        // imagePreview를 Blob으로 변환
         const response = await fetch(imagePreview);
         const blob = await response.blob();
         formData.append("image", blob, "memory.jpg");
@@ -59,6 +61,9 @@ export default function Home() {
       });
 
       const data = await result.json();
+      
+      // 에러 확인 추가
+      console.log("Response:", data);
 
       if (data.success) {
         setTimeout(() => {
@@ -67,8 +72,12 @@ export default function Home() {
           setLetter("");
           setImagePreview(null);
         }, 2000);
+      } else {
+        alert(`Failed to save: ${data.error}`);
+        setIsAnimating(false);
       }
     } catch (error) {
+      console.error("Submit error:", error);
       alert("Failed to save letter");
       setIsAnimating(false);
     }
