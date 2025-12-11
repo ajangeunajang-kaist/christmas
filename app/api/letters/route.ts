@@ -4,6 +4,8 @@ import { put, list } from '@vercel/blob';
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
+    const ornamentId = formData.get('ornamentId') as string; // 오너먼트 ID 받기
+    const ornamentName = formData.get('ornamentName') as string; // 오너먼트 이름 받기
     const text = formData.get('text') as string;
     const image = formData.get('image') as File | null;
     const objZip = formData.get('objZip') as File | null;
@@ -11,21 +13,52 @@ export async function POST(request: Request) {
     const podcast = formData.get('podcast') as File | null;
     const bgm = formData.get('bgm') as File | null;
 
+    // ornamentId가 없으면 에러
+    if (!ornamentId) {
+      return NextResponse.json({ success: false, error: 'ornamentId is required' }, { status: 400 });
+    }
+
     const timestamp = Date.now();
 
-    // 이미지를 Vercel Blob에 업로드
-    let imageUrl = null;
+    // 기존 데이터 가져오기 (있으면)
+    let existingData: any = {
+      id: ornamentId,
+      ornamentName: '',
+      text: '',
+      imageUrl: null,
+      objZipUrl: null,
+      lowPolyImageUrl: null,
+      podcastUrl: null,
+      bgmUrl: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      const existingBlob = await fetch(`${process.env.BLOB_READ_WRITE_TOKEN ? 'https://' : ''}${process.env.VERCEL_URL || 'localhost:3000'}/api/letters/${ornamentId}`);
+      if (existingBlob.ok) {
+        const existing = await existingBlob.json();
+        if (existing.success) {
+          existingData = { ...existingData, ...existing.data };
+        }
+      }
+    } catch (e) {
+      // 기존 데이터 없음 - 새로 생성
+    }
+
+    // 이미지 업로드 (새로 업로드하면 덮어쓰기)
+    let imageUrl = existingData.imageUrl;
     if (image) {
-      const blob = await put(`images/${timestamp}_${image.name}`, image, {
+      const blob = await put(`images/${ornamentId}_${timestamp}_${image.name}`, image, {
         access: 'public',
       });
       imageUrl = blob.url;
     }
 
     // 3D 오브젝트 zip 파일 업로드
-    let objZipUrl = null;
+    let objZipUrl = existingData.objZipUrl;
     if (objZip) {
-      const blob = await put(`3d-objects/${timestamp}_${objZip.name}`, objZip, {
+      const blob = await put(`3d-objects/${ornamentId}_${timestamp}_${objZip.name}`, objZip, {
         access: 'public',
         contentType: 'application/zip',
       });
@@ -33,18 +66,18 @@ export async function POST(request: Request) {
     }
 
     // 로우폴리 이미지 업로드
-    let lowPolyImageUrl = null;
+    let lowPolyImageUrl = existingData.lowPolyImageUrl;
     if (lowPolyImage) {
-      const blob = await put(`lowpoly-images/${timestamp}_${lowPolyImage.name}`, lowPolyImage, {
+      const blob = await put(`lowpoly-images/${ornamentId}_${timestamp}_${lowPolyImage.name}`, lowPolyImage, {
         access: 'public',
       });
       lowPolyImageUrl = blob.url;
     }
 
     // 팟캐스트 음성 파일 업로드
-    let podcastUrl = null;
+    let podcastUrl = existingData.podcastUrl;
     if (podcast) {
-      const blob = await put(`podcasts/${timestamp}_${podcast.name}`, podcast, {
+      const blob = await put(`podcasts/${ornamentId}_${timestamp}_${podcast.name}`, podcast, {
         access: 'public',
         contentType: 'audio/wav',
       });
@@ -52,34 +85,42 @@ export async function POST(request: Request) {
     }
 
     // BGM 음악 파일 업로드
-    let bgmUrl = null;
+    let bgmUrl = existingData.bgmUrl;
     if (bgm) {
-      const blob = await put(`bgm/${timestamp}_${bgm.name}`, bgm, {
+      const blob = await put(`bgm/${ornamentId}_${timestamp}_${bgm.name}`, bgm, {
         access: 'public',
         contentType: 'audio/wav',
       });
       bgmUrl = blob.url;
     }
 
-    // 텍스트 데이터도 JSON으로 Blob에 저장
+    // 텍스트와 오너먼트 이름 업데이트 (새로 입력하면 덮어쓰기)
+    const updatedText = text || existingData.text;
+    const updatedOrnamentName = ornamentName || existingData.ornamentName;
+
+    // 업데이트된 데이터
     const letterData = {
-      id: timestamp,
-      text,
+      ...existingData,
+      id: ornamentId,
+      ornamentName: updatedOrnamentName,
+      text: updatedText,
       imageUrl,
       objZipUrl,
       lowPolyImageUrl,
       podcastUrl,
       bgmUrl,
-      timestamp: new Date().toISOString()
+      updatedAt: new Date().toISOString()
     };
 
-    await put(`letters/${letterData.id}.json`, JSON.stringify(letterData), {
+    // JSON으로 저장
+    await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
       access: 'public',
       contentType: 'application/json',
     });
 
     return NextResponse.json({ success: true, data: letterData });
   } catch (error) {
+    console.error('Upload error:', error);
     return NextResponse.json({ success: false, error: 'Failed to save' }, { status: 500 });
   }
 }
