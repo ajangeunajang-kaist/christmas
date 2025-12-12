@@ -1,3 +1,17 @@
+// 파일 상단에 추가
+export const runtime = 'edge'; // 또는 'nodejs'
+export const maxDuration = 60; // 최대 60초
+export const dynamic = 'force-dynamic';
+
+// Body 크기 제한 설정 (Vercel Pro는 최대 4.5MB, Hobby는 4MB)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb', // 원하는 크기로 조정
+    },
+  },
+};
+
 import { NextResponse } from 'next/server';
 import { put, list } from '@vercel/blob';
 
