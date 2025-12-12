@@ -66,6 +66,8 @@ export async function POST(request: Request) {
         image,
         {
           access: "public",
+            allowOverwrite: true,
+
         }
       );
       imageUrl = blob.url;
@@ -81,6 +83,7 @@ export async function POST(request: Request) {
         {
           access: "public",
           contentType: "model/gltf-binary",
+          allowOverwrite: true,
         }
       );
       asset3dUrl = blob.url;
@@ -97,6 +100,7 @@ export async function POST(request: Request) {
         {
           access: "public",
           contentType: "audio/wav",
+          allowOverwrite: true,
         }
       );
       podcastUrl = blob.url;
@@ -111,6 +115,7 @@ export async function POST(request: Request) {
         {
           access: "public",
           contentType: "audio/wav",
+          allowOverwrite: true,
         }
       );
       bgmUrl = blob.url;
@@ -137,6 +142,7 @@ export async function POST(request: Request) {
     await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
       access: "public",
       contentType: "application/json",
+      allowOverwrite: true,
     });
 
     return NextResponse.json({ success: true, data: letterData });
