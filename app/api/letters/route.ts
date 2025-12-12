@@ -8,9 +8,19 @@ export async function POST(request: Request) {
     const ornamentName = formData.get("ornamentName") as string;
     const story = formData.get("story") as string;
     const image = formData.get("image") as File | null;
-    const asset3d = formData.get("3dAsset") as File | null; // objZip → 3dAsset
+    const asset3d = formData.get("3dAsset") as File | null;
     const podcast = formData.get("podcast") as File | null;
     const bgm = formData.get("bgm") as File | null;
+
+    // 디버깅 로그 추가
+    console.log("📥 Received formData:", {
+      ornamentId,
+      ornamentName,
+      story,
+      has3dAsset: !!asset3d,
+      asset3dName: asset3d?.name,
+      asset3dSize: asset3d?.size,
+    });
 
     if (!ornamentId) {
       return NextResponse.json(
@@ -26,7 +36,7 @@ export async function POST(request: Request) {
       ornamentName: "",
       story: "",
       imageUrl: null,
-      asset3dUrl: null, // objZipUrl → asset3dUrl
+      asset3dUrl: null,
       podcastUrl: null,
       bgmUrl: null,
       createdAt: new Date().toISOString(),
@@ -46,7 +56,7 @@ export async function POST(request: Request) {
         }
       }
     } catch (e) {
-      // 기존 데이터 없음 - 새로 생성
+      console.log("No existing data found, creating new");
     }
 
     let imageUrl = existingData.imageUrl;
@@ -59,20 +69,24 @@ export async function POST(request: Request) {
         }
       );
       imageUrl = blob.url;
+      console.log("✅ Image uploaded:", imageUrl);
     }
 
-    let asset3dUrl = existingData.asset3dUrl; // objZipUrl → asset3dUrl
+    let asset3dUrl = existingData.asset3dUrl;
     if (asset3d) {
+      console.log("🔄 Uploading 3D asset...");
       const blob = await put(
         `3d-assets/${ornamentId}_${timestamp}_${asset3d.name}`,
         asset3d,
         {
-          // 3d-objects → 3d-assets
           access: "public",
-          contentType: "model/gltf-binary", // application/zip → model/gltf-binary
+          contentType: "model/gltf-binary",
         }
       );
       asset3dUrl = blob.url;
+      console.log("✅ 3D asset uploaded:", asset3dUrl);
+    } else {
+      console.log("⚠️ No 3D asset received");
     }
 
     let podcastUrl = existingData.podcastUrl;
@@ -86,6 +100,7 @@ export async function POST(request: Request) {
         }
       );
       podcastUrl = blob.url;
+      console.log("✅ Podcast uploaded:", podcastUrl);
     }
 
     let bgmUrl = existingData.bgmUrl;
@@ -99,6 +114,7 @@ export async function POST(request: Request) {
         }
       );
       bgmUrl = blob.url;
+      console.log("✅ BGM uploaded:", bgmUrl);
     }
 
     const updatedStory = story || existingData.story;
@@ -110,11 +126,13 @@ export async function POST(request: Request) {
       ornamentName: updatedOrnamentName,
       story: updatedStory,
       imageUrl,
-      asset3dUrl, // objZipUrl → asset3dUrl
+      asset3dUrl,
       podcastUrl,
       bgmUrl,
       updatedAt: new Date().toISOString(),
     };
+
+    console.log("💾 Saving letterData:", letterData);
 
     await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
       access: "public",
