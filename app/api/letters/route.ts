@@ -1,51 +1,44 @@
-// 파일 상단에 추가
-export const runtime = 'edge'; // 또는 'nodejs'
-export const maxDuration = 60; // 최대 60초
-export const dynamic = 'force-dynamic';
-
-// Body 크기 제한 설정 (Vercel Pro는 최대 4.5MB, Hobby는 4MB)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '20mb', // 원하는 크기로 조정
-    },
-  },
-};
-
-import { NextResponse } from 'next/server';
-import { put, list } from '@vercel/blob';
+import { NextResponse } from "next/server";
+import { put, list } from "@vercel/blob";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const ornamentId = formData.get('ornamentId') as string;
-    const ornamentName = formData.get('ornamentName') as string;
-    const story = formData.get('story') as string;
-    const image = formData.get('image') as File | null;
-    const asset3d = formData.get('3dAsset') as File | null; // objZip → 3dAsset
-    const podcast = formData.get('podcast') as File | null;
-    const bgm = formData.get('bgm') as File | null;
+    const ornamentId = formData.get("ornamentId") as string;
+    const ornamentName = formData.get("ornamentName") as string;
+    const story = formData.get("story") as string;
+    const image = formData.get("image") as File | null;
+    const asset3d = formData.get("3dAsset") as File | null; // objZip → 3dAsset
+    const podcast = formData.get("podcast") as File | null;
+    const bgm = formData.get("bgm") as File | null;
 
     if (!ornamentId) {
-      return NextResponse.json({ success: false, error: 'ornamentId is required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "ornamentId is required" },
+        { status: 400 }
+      );
     }
 
     const timestamp = Date.now();
 
     let existingData: any = {
       id: ornamentId,
-      ornamentName: '',
-      story: '',
+      ornamentName: "",
+      story: "",
       imageUrl: null,
       asset3dUrl: null, // objZipUrl → asset3dUrl
       podcastUrl: null,
       bgmUrl: null,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     try {
-      const existingBlob = await fetch(`${process.env.BLOB_READ_WRITE_TOKEN ? 'https://' : ''}${process.env.VERCEL_URL || 'localhost:3000'}/api/letters/${ornamentId}`);
+      const existingBlob = await fetch(
+        `${process.env.BLOB_READ_WRITE_TOKEN ? "https://" : ""}${
+          process.env.VERCEL_URL || "localhost:3000"
+        }/api/letters/${ornamentId}`
+      );
       if (existingBlob.ok) {
         const existing = await existingBlob.json();
         if (existing.success) {
@@ -58,36 +51,53 @@ export async function POST(request: Request) {
 
     let imageUrl = existingData.imageUrl;
     if (image) {
-      const blob = await put(`images/${ornamentId}_${timestamp}_${image.name}`, image, {
-        access: 'public',
-      });
+      const blob = await put(
+        `images/${ornamentId}_${timestamp}_${image.name}`,
+        image,
+        {
+          access: "public",
+        }
+      );
       imageUrl = blob.url;
     }
 
     let asset3dUrl = existingData.asset3dUrl; // objZipUrl → asset3dUrl
     if (asset3d) {
-      const blob = await put(`3d-assets/${ornamentId}_${timestamp}_${asset3d.name}`, asset3d, { // 3d-objects → 3d-assets
-        access: 'public',
-        contentType: 'model/gltf-binary', // application/zip → model/gltf-binary
-      });
+      const blob = await put(
+        `3d-assets/${ornamentId}_${timestamp}_${asset3d.name}`,
+        asset3d,
+        {
+          // 3d-objects → 3d-assets
+          access: "public",
+          contentType: "model/gltf-binary", // application/zip → model/gltf-binary
+        }
+      );
       asset3dUrl = blob.url;
     }
 
     let podcastUrl = existingData.podcastUrl;
     if (podcast) {
-      const blob = await put(`podcasts/${ornamentId}_${timestamp}_${podcast.name}`, podcast, {
-        access: 'public',
-        contentType: 'audio/wav',
-      });
+      const blob = await put(
+        `podcasts/${ornamentId}_${timestamp}_${podcast.name}`,
+        podcast,
+        {
+          access: "public",
+          contentType: "audio/wav",
+        }
+      );
       podcastUrl = blob.url;
     }
 
     let bgmUrl = existingData.bgmUrl;
     if (bgm) {
-      const blob = await put(`bgm/${ornamentId}_${timestamp}_${bgm.name}`, bgm, {
-        access: 'public',
-        contentType: 'audio/wav',
-      });
+      const blob = await put(
+        `bgm/${ornamentId}_${timestamp}_${bgm.name}`,
+        bgm,
+        {
+          access: "public",
+          contentType: "audio/wav",
+        }
+      );
       bgmUrl = blob.url;
     }
 
@@ -103,25 +113,28 @@ export async function POST(request: Request) {
       asset3dUrl, // objZipUrl → asset3dUrl
       podcastUrl,
       bgmUrl,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
-      access: 'public',
-      contentType: 'application/json',
+      access: "public",
+      contentType: "application/json",
     });
 
     return NextResponse.json({ success: true, data: letterData });
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to save' }, { status: 500 });
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to save" },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   try {
-    const { blobs } = await list({ prefix: 'letters/' });
-    
+    const { blobs } = await list({ prefix: "letters/" });
+
     const letters = await Promise.all(
       blobs.map(async (blob: any) => {
         const response = await fetch(blob.url);
@@ -131,6 +144,9 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: letters });
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch" },
+      { status: 500 }
+    );
   }
 }
