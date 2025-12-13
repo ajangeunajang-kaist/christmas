@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const ornamentId = formData.get("ornamentId") as string;
     const ornamentName = formData.get("ornamentName") as string;
     const story = formData.get("story") as string;
+    const podcastScript = formData.get("podcastScript") as string;
     const image = formData.get("image") as File | null;
     const asset3d = formData.get("3dAsset") as File | null;
     const podcast = formData.get("podcast") as File | null;
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
       ornamentId,
       ornamentName,
       story,
+      podcastScript,
       has3dAsset: !!asset3d,
       asset3dName: asset3d?.name,
       asset3dSize: asset3d?.size,
@@ -35,6 +37,7 @@ export async function POST(request: Request) {
       id: ornamentId,
       ornamentName: "",
       story: "",
+      podcastScript: "",
       imageUrl: null,
       asset3dUrl: null,
       podcastUrl: null,
@@ -124,12 +127,14 @@ export async function POST(request: Request) {
 
     const updatedStory = story || existingData.story;
     const updatedOrnamentName = ornamentName || existingData.ornamentName;
+    const updatedPodcastScript = podcastScript || existingData.podcastScript;
 
     const letterData = {
       ...existingData,
       id: ornamentId,
       ornamentName: updatedOrnamentName,
       story: updatedStory,
+      podcastScript: updatedPodcastScript,
       imageUrl,
       asset3dUrl,
       podcastUrl,
