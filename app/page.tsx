@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [letter, setLetter] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [fontLoaded, setFontLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const font = new FontFace(
@@ -76,11 +78,12 @@ export default function Home() {
 
       if (data.success) {
         setTimeout(() => {
-          alert("Your story is becoming a Christmas Mornament 🎄");
+          alert("Your story is becoming a Christmas Ornament 🎄");
           setIsAnimating(false);
           setLetter("");
           setImagePreview(null);
-        }, 2000);
+          router.push("/complete"); // 완료 페이지로 이동
+        }, 1000);
       } else {
         alert(`Failed to save: ${data.error}`);
         setIsAnimating(false);
