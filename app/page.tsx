@@ -80,7 +80,7 @@ export default function Home() {
           setIsAnimating(false);
           setLetter("");
           setImagePreview(null);
-        }, 1000);
+        }, 2000);
       } else {
         alert(`Failed to save: ${data.error}`);
         setIsAnimating(false);
