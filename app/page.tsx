@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const [letter, setLetter] = useState("");
@@ -187,16 +188,7 @@ export default function Home() {
           🎁
         </div>
 
-        {/* Footer */}
-        <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center font-[family-name:var(--font-eb-garamond)]">
-          The Way We Reminisce ✨ From{" "}
-          <a
-            href="/team"
-            className="mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors"
-          >
-            생성하는 루돌프
-          </a>
-        </p>
+        <Footer />
       </main>
     </div>
   );

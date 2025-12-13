@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Footer from "../components/Footer";
 
 export default function CompletePage() {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -57,20 +58,14 @@ export default function CompletePage() {
             onClick={() => router.push("/")}
             className="pt-8 text-3xl text-[#424242] transition-all text-lg lg:text-2xl leading-relaxed font-[family-name:var(--font-eb-garamond)]"
           >
-            <span className="border-b-2 border-dotted"> Create New Mornament</span>
+            <span className="border-b-2 border-dotted">
+              {" "}
+              Create New Mornament
+            </span>
           </button>
         </div>
 
-        {/* Footer */}
-        <p className="text-sm text-zinc-500 dark:text-zinc-500 text-center font-[family-name:var(--font-eb-garamond)]">
-          The Way We Reminisce ✨ From{" "}
-          <a
-            href="/team"
-            className="mt-12 mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors"
-          >
-            생성하는 루돌프
-          </a>
-        </p>
+        <Footer />
       </main>
     </div>
   );
