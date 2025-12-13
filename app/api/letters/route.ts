@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     const ornamentName = formData.get("ornamentName") as string;
     const story = formData.get("story") as string;
     const podcastScript = formData.get("podcastScript") as string;
+    const imageUrlFromForm = formData.get("imageUrl") as string | null;
     const image = formData.get("image") as File | null;
     const asset3d = formData.get("3dAsset") as File | null;
     const podcast = formData.get("podcast") as File | null;
@@ -74,6 +75,10 @@ export async function POST(request: Request) {
       );
       imageUrl = blob.url;
       console.log("✅ Image uploaded:", imageUrl);
+    } else if (imageUrlFromForm) {
+      // formData에서 받은 imageUrl이 있으면 사용
+      imageUrl = imageUrlFromForm;
+      console.log("✅ Image URL from form:", imageUrl);
     }
 
     let asset3dUrl = existingData.asset3dUrl;
