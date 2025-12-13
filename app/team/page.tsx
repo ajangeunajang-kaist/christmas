@@ -25,7 +25,7 @@ export default function TeamPage() {
             <path
               d="M23.3051 1.06086L2.12132 22.2446L23.3051 43.4284"
               stroke="black"
-              stroke-width="1"
+              strokeWidth="1"
             />
           </svg>
         </Link>

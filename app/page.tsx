@@ -55,6 +55,15 @@ export default function Home() {
         formData.append("image", blob, "memory.jpg");
       }
 
+      // 외부 서버에 ID 전송
+      await fetch("http://mac-beatles1.kaist.ac.kr:50003/start-job", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: ornamentId }),
+      });
+
       const result = await fetch("/api/letters", {
         method: "POST",
         body: formData,
