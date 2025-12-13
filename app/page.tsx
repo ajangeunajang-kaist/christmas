@@ -60,7 +60,7 @@ export default function Home() {
 
       // 외부 서버에 ID 전송 (응답 콘솔 출력)
       try {
-        const extRes = await fetch("http://mac-beatles1.kaist.ac.kr:50003/start-job", {
+        const extRes = await fetch("/api/proxy", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
