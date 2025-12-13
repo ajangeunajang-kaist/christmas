@@ -1,14 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method !== "POST") {
-    return res.status(405).end();
-  }
-
-  const { id } = req.body;
+export async function POST(request: Request) {
+  const { id } = await request.json();
 
   try {
     const extRes = await fetch(
@@ -23,18 +16,25 @@ export default async function handler(
     if (!extRes.ok) {
       const text = await extRes.text();
       console.error("External server error:", text);
-      return res
-        .status(extRes.status)
-        .json({
+      return new Response(
+        JSON.stringify({
           message: "Error fetching data from external server",
           detail: text,
-        });
+        }),
+        { status: extRes.status, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     const extData = await extRes.json();
-    res.status(200).json(extData);
+    return new Response(JSON.stringify(extData), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
     console.error("Fetch error:", error);
-    res.status(500).json({ message: "Proxy error", detail: String(error) });
+    return new Response(
+      JSON.stringify({ message: "Proxy error", detail: String(error) }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
