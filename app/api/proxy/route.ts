@@ -1,21 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(req: NextRequest) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== "POST") {
+    return res.status(405).end();
+  }
+
+  const { id } = req.body;
+
   try {
-    const body = await req.json();
+    const extRes = await fetch(
+      "http://mac-beatles1.kaist.ac.kr:50003/start-job",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      }
+    );
 
-    // 외부 서버로 요청
-    const extRes = await fetch("http://mac-beatles1.kaist.ac.kr:50003/start-job", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+    if (!extRes.ok) {
+      const text = await extRes.text();
+      console.error("External server error:", text);
+      return res
+        .status(extRes.status)
+        .json({
+          message: "Error fetching data from external server",
+          detail: text,
+        });
+    }
 
-    const data = await extRes.json();
-    return NextResponse.json(data, { status: extRes.status });
-  } catch (err) {
-    return NextResponse.json({ error: "Proxy error", detail: String(err) }, { status: 500 });
+    const extData = await extRes.json();
+    res.status(200).json(extData);
+  } catch (error) {
+    console.error("Fetch error:", error);
+    res.status(500).json({ message: "Proxy error", detail: String(error) });
   }
 }
