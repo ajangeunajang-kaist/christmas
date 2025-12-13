@@ -30,10 +30,10 @@ export async function POST(request: Request) {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Fetch error:", error);
+  } catch (error: any) {
+    console.error("Fetch error:", error?.message || error);
     return new Response(
-      JSON.stringify({ message: "Proxy error", detail: String(error) }),
+      JSON.stringify({ message: "Proxy error", detail: error?.message || String(error) }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
