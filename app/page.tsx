@@ -59,19 +59,19 @@ export default function Home() {
       }
 
       // 외부 서버에 ID 전송 (응답 콘솔 출력)
-      try {
-        const extRes = await fetch("/api/proxy", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: ornamentId }),
-        });
-        const extData = await extRes.json();
-        console.log("External server response:", extData);
-      } catch (err) {
-        console.log("External server error:", err);
-      }
+      // try {
+      //   const extRes = await fetch("/api/proxy", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({ id: ornamentId }),
+      //   });
+      //   const extData = await extRes.json();
+      //   console.log("External server response:", extData);
+      // } catch (err) {
+      //   console.log("External server error:", err);
+      // }
 
       const result = await fetch("/api/letters", {
         method: "POST",
