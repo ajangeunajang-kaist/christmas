@@ -23,7 +23,7 @@ export default function CompletePage() {
     <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3] overflow-hidden">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-center gap-8 py-16 px-8 text-center">
         {/* Christmas Tree */}
-        <div className="text-[20vw] select-none animate-bounce">🎄</div>
+        <div className="text-[40vw] sm:text-[20vw] select-none">🎄</div>
 
         {/* Title */}
         <h1
@@ -40,10 +40,12 @@ export default function CompletePage() {
         </p>
 
         {/* Ornament Animation */}
-        <div className="text-[15vw] select-none animate-pulse">🎁</div>
+        <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce">
+          🎁
+        </div>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-4 mt-8 flex-wrap justify-center">
+        <div className="flex flex-col gap-4 flex-wrap justify-center">
           <a
             href="https://my-3d-zoo.vercel.app"
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
@@ -53,9 +55,9 @@ export default function CompletePage() {
           </a>
           <button
             onClick={() => router.push("/")}
-            className="p-8 text-3xl text-[#424242] rounded-[100%] transition-all text-lg lg:text-2xl leading-relaxed font-[family-name:var(--font-eb-garamond)]"
+            className="pt-8 text-3xl text-[#424242] transition-all text-lg lg:text-2xl leading-relaxed font-[family-name:var(--font-eb-garamond)]"
           >
-            Create New Mornament
+            <span className="border-b-2 border-dotted"> Create New Mornament</span>
           </button>
         </div>
 
@@ -64,7 +66,7 @@ export default function CompletePage() {
           The Way We Reminisce ✨ From{" "}
           <a
             href="/team"
-            className="mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors"
+            className="mt-12 mx-2 leading-loose border-b-2 border-dotted hover:text-[#424242] transition-colors"
           >
             생성하는 루돌프
           </a>
