@@ -80,7 +80,7 @@ export default function Home() {
           setIsAnimating(false);
           setLetter("");
           setImagePreview(null);
-        }, 2000);
+        }, 1000);
       } else {
         alert(`Failed to save: ${data.error}`);
         setIsAnimating(false);
@@ -97,7 +97,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Header */}
         <div className="text-center">
-          <div className="text-[20vw]">🎄</div>
+          <div className="text-[20vw] select-none">🎄</div>
           <h1
             className="text-[clamp(4rem,6vw,5rem)] leading-none text-[#424242] dark:text-red-400 "
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
