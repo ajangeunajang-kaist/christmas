@@ -69,8 +69,6 @@ export async function POST(request: Request) {
         image,
         {
           access: "public",
-            allowOverwrite: true,
-
         }
       );
       imageUrl = blob.url;
