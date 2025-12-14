@@ -11,6 +11,7 @@ import time
 import json
 import requests
 from openai import OpenAI
+from typing import Optional
 
 # ------------------- API KEY -------------------
 OPENAI_KEY = os.getenv("OPENAI_API_KEY")
@@ -26,7 +27,7 @@ MESHY_BASE = "https://api.meshy.ai"
 # ---------------------------------------------------------
 # 1. ChatGPT → object + lowpoly prompt
 # ---------------------------------------------------------
-def generate_keyword_and_lowpoly_prompt(text: str, image_url: str | None = None) -> dict:
+def generate_keyword_and_lowpoly_prompt(text: str, image_url: Optional[str] = None) -> dict:
     system = (
         "You extract a single object from user inputs (text/image) and produce a lowpoly 3D prompt. "
         "Respond strictly in JSON with keys: object, lowpoly_prompt. "
@@ -174,7 +175,7 @@ def create_retexture_task(model_url: str, same_prompt: str):
 # ---------------------------------------------------------
 # 전체 파이프라인: Text → 3D → Retexture
 # ---------------------------------------------------------
-def run_pipeline(text_input: str, image_url: str | None = None):
+def run_pipeline(text_input: str, image_url: Optional[str] = None):
     print("\n=== STEP 1: ChatGPT object + lowpoly prompt ===")
     info = generate_keyword_and_lowpoly_prompt(text_input, image_url)
     print(info)
