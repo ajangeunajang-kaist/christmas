@@ -20,10 +20,10 @@ async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<stri
       },
       body: JSON.stringify({
         image_url: imageUrl,
-        ai_model: "meshy-5",
+        ai_model: "meshy-4",
         topology: "triangle",
         target_polycount: 200, // 로우폴리 설정
-        should_remesh: true,
+        should_remesh: false,
         should_texture: true,
         enable_pbr: false, // 간단한 텍스처만 사용
       }),
