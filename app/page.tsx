@@ -34,10 +34,19 @@ export default function Home() {
     const pollInterval = setInterval(async () => {
       try {
         const response = await fetch(`/api/meshy/${meshyTaskId}`);
+
+        if (!response.ok) {
+          console.error("Polling failed:", response.status, response.statusText);
+          return;
+        }
+
         const data = await response.json();
+        console.log("Polling response:", data);
 
         if (data.success) {
-          setProgress(data.progress);
+          const currentProgress = data.progress || 0;
+          setProgress(currentProgress);
+          console.log(`Progress: ${currentProgress}%`);
 
           if (data.status === "SUCCEEDED" && data.asset3dUrl) {
             // 완료되면 polling 중지하고 complete 페이지로 이동
@@ -51,6 +60,8 @@ export default function Home() {
             setIsGenerating(false);
             alert("3D asset generation failed. Please try again.");
           }
+        } else {
+          console.error("Polling returned error:", data.error);
         }
       } catch (error) {
         console.error("Polling error:", error);
@@ -100,7 +111,7 @@ export default function Home() {
       });
 
       const data = await result.json();
-      console.log("Response:", data);
+      console.log("Submit response:", data);
 
       if (data.success) {
         setTimeout(() => {
@@ -108,10 +119,12 @@ export default function Home() {
 
           // Meshy task가 있으면 progress bar 표시
           if (data.data.meshyTaskId) {
+            console.log("Starting 3D generation with task ID:", data.data.meshyTaskId);
             setMeshyTaskId(data.data.meshyTaskId);
             setIsGenerating(true);
             setProgress(0);
           } else {
+            console.log("No meshyTaskId found, redirecting to complete page");
             // Meshy task가 없으면 바로 완료 페이지로
             router.push("/complete");
           }
