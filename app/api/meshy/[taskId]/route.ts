@@ -6,10 +6,10 @@ const BLOB_TOKEN: string | undefined = process.env.BLOB_READ_WRITE_TOKEN || proc
 // Meshy task 상태 조회 및 완료 시 GLB 다운로드
 export async function GET(
   request: Request,
-  { params }: { params: { taskId: string } }
+  { params }: { params: Promise<{ taskId: string }> }
 ) {
   try {
-    const { taskId } = params;
+    const { taskId } = await params;
     const apiKey = process.env.MESHY_API_KEY;
 
     if (!apiKey) {

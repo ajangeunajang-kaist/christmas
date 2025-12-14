@@ -36,7 +36,7 @@ async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<stri
     }
 
     const taskData = await createResponse.json();
-    const taskId = taskData.result || taskData.id || taskData.task_id;
+    const taskId = taskData.result || taskData.id;
     console.log("✅ Meshy task created:", taskId);
 
     return taskId;
