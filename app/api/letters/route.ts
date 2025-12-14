@@ -22,7 +22,7 @@ async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<stri
         image_url: imageUrl,
         ai_model: "meshy-5",
         topology: "triangle",
-        target_polycount: 100, // 로우폴리 설정
+        target_polycount: 200, // 로우폴리 설정
         should_remesh: true,
         should_texture: true,
         enable_pbr: false, // 간단한 텍스처만 사용

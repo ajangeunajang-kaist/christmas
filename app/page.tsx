@@ -67,7 +67,7 @@ export default function Home() {
       } catch (error) {
         console.error("Polling error:", error);
       }
-    }, 5000); // 3초마다 확인
+    }, 5000); // 5초마다 확인
 
     return () => clearInterval(pollInterval);
   }, [meshyTaskId, ornamentId, router]);
