@@ -200,8 +200,8 @@ export async function POST(request: Request) {
       extractedObject = await extractObjectFromImage(imageUrl);
 
       if (extractedObject) {
-        // 2. extracted object + style description으로 prompt 생성
-        const prompt = `Low poly cartoon style ${extractedObject}.}`;
+        // 2. story + extracted object + style description으로 prompt 생성
+        const prompt = `Low poly cartoon style ${extractedObject}. ${story}`;
         console.log("📝 Generated prompt:", prompt);
 
         // 3. Meshy text-to-3d API 호출
