@@ -61,7 +61,12 @@ async function createMeshyTask({
     const requestBody = {
       mode: "preview",
       prompt: prompt,
-      negative_prompt: "high poly, realistic, complex details",
+      ai_model: "meshy-5",
+      topology: "triangle",
+      target_polycount: 100,
+      should_remesh: true,
+      should_texture: true,
+      art_style: "sculpture", // 카툰 스타일에 적합
     };
     console.log("📦 Request body:", JSON.stringify(requestBody, null, 2));
 
@@ -213,8 +218,8 @@ export async function POST(request: Request) {
       extractedObject = await extractObjectFromImage(imageUrl);
 
       if (extractedObject) {
-        // 2. story + extracted object + style description으로 prompt 생성
-        const prompt = `Low poly cartoon style ${extractedObject}. ${story}`;
+        // 2. extracted object + style description으로 prompt 생성
+        const prompt = `Low poly cartoon style ${extractedObject}. Keep the geometry low-poly, cartoony, and appealing.`;
         console.log("📝 Generated prompt:", prompt);
 
         // 3. Meshy text-to-3d API 호출

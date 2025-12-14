@@ -161,7 +161,7 @@ export default function Home() {
             </h2>
             <div className="p-8 max-w-md w-full mx-4">
               <div className="text-center mb-6">
-                <div className="flex text-[40vw] sm:text-[15vw] select-none mb-4"><div className="animate-bounce delay-[0.2s]">🦌</div><div className="animate-bounce" style={{ animationDelay: "0.2s" }}
+                <div className="flex justify-center text-[40vw] sm:text-[15vw] select-none mb-4"><div className="animate-bounce delay-[0.2s]">🦌</div><div className="animate-bounce" style={{ animationDelay: "0.2s" }}
                 >🛷</div></div>
 
                 <p className="text-lg">
