@@ -1,8 +1,54 @@
 import { NextResponse } from "next/server";
 import { put, list } from "@vercel/blob";
+import OpenAI from "openai";
 
-// Meshy API task 생성만 하는 함수 (비동기 처리)
-async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<string | null> {
+// OpenAI 클라이언트 초기화
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// OpenAI Vision API로 이미지에서 주요 object 추출
+async function extractObjectFromImage(imageUrl: string): Promise<string | null> {
+  try {
+    console.log("🔍 Extracting object from image:", imageUrl);
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Identify the main object in this image and describe it in 2-4 words. Just name the object, nothing else. For example: 'red hammer', 'wooden chair', 'vintage camera'."
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageUrl,
+              },
+            },
+          ],
+        },
+      ],
+      max_tokens: 50,
+    });
+
+    const extractedObject = response.choices[0]?.message?.content?.trim() || null;
+    console.log("✅ Extracted object:", extractedObject);
+    return extractedObject;
+  } catch (e) {
+    console.error("❌ Failed to extract object from image:", e);
+    return null;
+  }
+}
+
+// Meshy API text-to-3d task 생성 함수
+async function createMeshyTask({
+  prompt
+}: {
+  prompt: string;
+}): Promise<string | null> {
   const apiKey = process.env.MESHY_API_KEY;
   if (!apiKey) {
     console.error("MESHY_API_KEY is not set");
@@ -10,22 +56,19 @@ async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<stri
   }
 
   try {
-    console.log("🚀 Creating Meshy task with image:", imageUrl);
+    console.log("🚀 Creating Meshy text-to-3d task with prompt:", prompt);
 
-    const createResponse = await fetch("https://api.meshy.ai/openapi/v1/image-to-3d", {
+    const createResponse = await fetch("https://api.meshy.ai/v2/text-to-3d", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        image_url: imageUrl,
-        ai_model: "meshy-4",
-        topology: "triangle",
-        target_polycount: 200, // 로우폴리 설정
-        should_remesh: false,
-        should_texture: true,
-        enable_pbr: false, // 간단한 텍스처만 사용
+        mode: "preview",
+        prompt: prompt,
+        art_style: "cartoon",
+        negative_prompt: "high poly, realistic, complex details",
       }),
     });
 
@@ -37,7 +80,7 @@ async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<stri
 
     const taskData = await createResponse.json();
     const taskId = taskData.result || taskData.id;
-    console.log("✅ Meshy task created:", taskId);
+    console.log("✅ Meshy text-to-3d task created:", taskId);
 
     return taskId;
   } catch (e) {
@@ -90,6 +133,7 @@ export async function POST(request: Request) {
       podcastScript: "",
       emotion: "",
       imageUrl: null,
+      extractedObject: null,
       asset3dUrl: null,
       meshyTaskId: null,
       podcastUrl: null,
@@ -132,6 +176,7 @@ export async function POST(request: Request) {
 
     let asset3dUrl = existingData.asset3dUrl;
     let meshyTaskId = existingData.meshyTaskId || null;
+    let extractedObject = existingData.extractedObject || null;
 
     if (asset3d) {
       console.log("🔄 Uploading 3D asset...");
@@ -147,17 +192,30 @@ export async function POST(request: Request) {
       );
       asset3dUrl = blob.url;
       console.log("✅ 3D asset uploaded:", asset3dUrl);
-    } else if (imageUrl && !meshyTaskId) {
-      // asset3d가 없고 imageUrl이 있으면 Meshy task 생성 (polling은 클라이언트에서)
-      console.log("🔧 Creating Meshy task...");
-      meshyTaskId = await createMeshyTask({ imageUrl });
-      if (meshyTaskId) {
-        console.log("✅ Meshy task ID saved:", meshyTaskId);
+    } else if (imageUrl && story && !meshyTaskId) {
+      // asset3d가 없고 imageUrl과 story가 있으면 text-to-3d task 생성
+      console.log("🔧 Creating Meshy text-to-3d task...");
+
+      // 1. 이미지에서 object 추출
+      extractedObject = await extractObjectFromImage(imageUrl);
+
+      if (extractedObject) {
+        // 2. extracted object + style description으로 prompt 생성
+        const prompt = `Low poly cartoon style ${extractedObject}.}`;
+        console.log("📝 Generated prompt:", prompt);
+
+        // 3. Meshy text-to-3d API 호출
+        meshyTaskId = await createMeshyTask({ prompt });
+        if (meshyTaskId) {
+          console.log("✅ Meshy text-to-3d task ID saved:", meshyTaskId);
+        } else {
+          console.log("⚠️ Failed to create Meshy task");
+        }
       } else {
-        console.log("⚠️ Failed to create Meshy task");
+        console.log("⚠️ Failed to extract object from image");
       }
     } else {
-      console.log("⚠️ No 3D asset or image provided");
+      console.log("⚠️ No 3D asset or required data (image + story) provided");
     }
 
     let podcastUrl = existingData.podcastUrl;
@@ -205,6 +263,7 @@ export async function POST(request: Request) {
       podcastScript: updatedPodcastScript,
       emotion: updatedEmotion,
       imageUrl,
+      extractedObject,
       asset3dUrl,
       meshyTaskId,
       podcastUrl,
