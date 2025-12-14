@@ -61,7 +61,6 @@ async function createMeshyTask({
     const requestBody = {
       mode: "preview",
       prompt: prompt,
-      art_style: "cartoon",
       negative_prompt: "high poly, realistic, complex details",
     };
     console.log("📦 Request body:", JSON.stringify(requestBody, null, 2));
