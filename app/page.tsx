@@ -10,6 +10,9 @@ export default function Home() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [fontLoaded, setFontLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [meshyTaskId, setMeshyTaskId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,6 +26,39 @@ export default function Home() {
       setFontLoaded(true);
     });
   }, []);
+
+  // Meshy task polling
+  useEffect(() => {
+    if (!meshyTaskId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/meshy/${meshyTaskId}`);
+        const data = await response.json();
+
+        if (data.success) {
+          setProgress(data.progress);
+
+          if (data.status === "SUCCEEDED" && data.asset3dUrl) {
+            // 완료되면 polling 중지하고 complete 페이지로 이동
+            clearInterval(pollInterval);
+            setIsGenerating(false);
+            setTimeout(() => {
+              router.push("/complete");
+            }, 500);
+          } else if (data.status === "FAILED") {
+            clearInterval(pollInterval);
+            setIsGenerating(false);
+            alert("3D asset generation failed. Please try again.");
+          }
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 3000); // 3초마다 확인
+
+    return () => clearInterval(pollInterval);
+  }, [meshyTaskId, router]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,7 +86,7 @@ export default function Home() {
       // ornamentId 추가 (고유 ID 생성)
       const ornamentId = `ornament_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       formData.append("ornamentId", ornamentId);
-      formData.append("story", letter); 
+      formData.append("story", letter);
 
       if (imagePreview) {
         const response = await fetch(imagePreview);
@@ -58,38 +94,27 @@ export default function Home() {
         formData.append("image", blob, "memory.jpg");
       }
 
-      // 외부 서버에 ID 전송 (응답 콘솔 출력)
-      // try {
-      //   const extRes = await fetch("/api/proxy", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({ id: ornamentId }),
-      //   });
-      //   const extData = await extRes.json();
-      //   console.log("External server response:", extData);
-      // } catch (err) {
-      //   console.log("External server error:", err);
-      // }
-
       const result = await fetch("/api/letters", {
         method: "POST",
         body: formData,
       });
 
       const data = await result.json();
-      
-      // 에러 확인 추가
       console.log("Response:", data);
 
       if (data.success) {
         setTimeout(() => {
-          alert("Your story is becoming a Christmas Ornament 🎄");
           setIsAnimating(false);
-          setLetter("");
-          setImagePreview(null);
-          router.push("/complete"); // 완료 페이지로 이동
+
+          // Meshy task가 있으면 progress bar 표시
+          if (data.data.meshyTaskId) {
+            setMeshyTaskId(data.data.meshyTaskId);
+            setIsGenerating(true);
+            setProgress(0);
+          } else {
+            // Meshy task가 없으면 바로 완료 페이지로
+            router.push("/complete");
+          }
         }, 1000);
       } else {
         alert(`Failed to save: ${data.error}`);
@@ -105,6 +130,39 @@ export default function Home() {
   return (
     <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3] overflow-hidden">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
+        {/* Progress Bar Overlay */}
+        {isGenerating && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-4">🎨</div>
+                <h2
+                  className="text-2xl mb-2"
+                  style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
+                >
+                  Creating Your 3D Ornament
+                </h2>
+                <p className="text-lg text-gray-600">
+                  This may take 3-5 minutes...
+                </p>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
+                <div
+                  className="bg-[#424242] h-4 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+
+              {/* Progress Text */}
+              <div className="text-center text-sm text-gray-500">
+                {progress}% Complete
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center">
           <div className="text-[40vw] sm:text-[20vw] select-none">🎄</div>

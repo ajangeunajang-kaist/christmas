@@ -1,89 +1,49 @@
 import { NextResponse } from "next/server";
 import { put, list } from "@vercel/blob";
 
-// Meshy API로 GLB 생성 함수 (Image to 3D)
-async function generateGLBWithMeshy({ imageUrl }: { imageUrl: string }) {
+// Meshy API task 생성만 하는 함수 (비동기 처리)
+async function createMeshyTask({ imageUrl }: { imageUrl: string }): Promise<string | null> {
   const apiKey = process.env.MESHY_API_KEY;
-  if (!apiKey) throw new Error("MESHY_API_KEY is not set");
-
-  console.log("🚀 Creating Meshy task with image:", imageUrl);
-
-  // 1. Task 생성
-  const createResponse = await fetch("https://api.meshy.ai/openapi/v1/image-to-3d", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      image_url: imageUrl,
-      ai_model: "meshy-5",
-      topology: "triangle",
-      target_polycount: 100, // 로우폴리 설정
-      should_remesh: true,
-      should_texture: true,
-      enable_pbr: false, // 간단한 텍스처만 사용
-    }),
-  });
-
-  if (!createResponse.ok) {
-    const errorText = await createResponse.text();
-    throw new Error(`Meshy task creation failed: ${createResponse.status} ${errorText}`);
+  if (!apiKey) {
+    console.error("MESHY_API_KEY is not set");
+    return null;
   }
 
-  const taskData = await createResponse.json();
-  console.log("📋 Meshy API response:", JSON.stringify(taskData, null, 2));
-  const taskId = taskData.result || taskData.id || taskData.task_id;
-  console.log("✅ Meshy task created:", taskId);
+  try {
+    console.log("🚀 Creating Meshy task with image:", imageUrl);
 
-  if (!taskId) {
-    throw new Error("No task ID in Meshy response");
-  }
-
-  // 2. Polling으로 task 완료 대기 (최대 10분)
-  const maxAttempts = 120; // 10분 (5초 간격)
-  const pollInterval = 5000; // 5초
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    await new Promise(resolve => setTimeout(resolve, pollInterval));
-
-    const statusResponse = await fetch(`https://api.meshy.ai/openapi/v1/image-to-3d/${taskId}`, {
+    const createResponse = await fetch("https://api.meshy.ai/openapi/v1/image-to-3d", {
+      method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        image_url: imageUrl,
+        ai_model: "meshy-5",
+        topology: "triangle",
+        target_polycount: 100, // 로우폴리 설정
+        should_remesh: true,
+        should_texture: true,
+        enable_pbr: false, // 간단한 텍스처만 사용
+      }),
     });
 
-    if (!statusResponse.ok) {
-      throw new Error(`Failed to check task status: ${statusResponse.status}`);
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      console.error(`Meshy task creation failed: ${createResponse.status} ${errorText}`);
+      return null;
     }
 
-    const status = await statusResponse.json();
-    console.log(`📊 Meshy task ${taskId} status: ${status.status} (${status.progress || 0}%)`);
+    const taskData = await createResponse.json();
+    const taskId = taskData.result || taskData.id || taskData.task_id;
+    console.log("✅ Meshy task created:", taskId);
 
-    if (status.status === "SUCCEEDED") {
-      console.log("🎉 Meshy task completed!");
-
-      // 3. GLB URL에서 파일 다운로드
-      const glbUrl = status.model_urls?.glb;
-      if (!glbUrl) throw new Error("No GLB URL in response");
-
-      console.log("⬇️ Downloading GLB from:", glbUrl);
-      const glbRes = await fetch(glbUrl);
-      if (!glbRes.ok) throw new Error("Failed to download GLB");
-
-      const glbBuffer = Buffer.from(await glbRes.arrayBuffer());
-      console.log("✅ GLB downloaded, size:", glbBuffer.length, "bytes");
-      return glbBuffer;
-    }
-
-    if (status.status === "FAILED" || status.status === "CANCELED") {
-      throw new Error(`Meshy task ${status.status}`);
-    }
-
-    // PENDING or IN_PROGRESS - continue polling
+    return taskId;
+  } catch (e) {
+    console.error("❌ Meshy task creation failed:", e);
+    return null;
   }
-
-  throw new Error("Meshy task timeout (10 minutes)");
 }
 
 // Support multiple env var names for the blob token (VERCEL UI vs local .env)
@@ -131,6 +91,7 @@ export async function POST(request: Request) {
       emotion: "",
       imageUrl: null,
       asset3dUrl: null,
+      meshyTaskId: null,
       podcastUrl: null,
       bgmUrl: null,
       createdAt: new Date().toISOString(),
@@ -170,6 +131,8 @@ export async function POST(request: Request) {
     }
 
     let asset3dUrl = existingData.asset3dUrl;
+    let meshyTaskId = existingData.meshyTaskId || null;
+
     if (asset3d) {
       console.log("🔄 Uploading 3D asset...");
       const blob = await put(
@@ -184,26 +147,14 @@ export async function POST(request: Request) {
       );
       asset3dUrl = blob.url;
       console.log("✅ 3D asset uploaded:", asset3dUrl);
-    } else if (imageUrl) {
-      // asset3d가 없고 imageUrl이 있으면 Meshy API로 생성 시도
-      try {
-        console.log("🔧 Generating 3D asset via Meshy API...");
-        const glbBuffer = await generateGLBWithMeshy({ imageUrl });
-        const blob = await put(
-          `3d-assets/${ornamentId}_${timestamp}.glb`,
-          glbBuffer,
-          {
-            access: "public",
-            contentType: "model/gltf-binary",
-            allowOverwrite: true,
-            token: BLOB_TOKEN,
-          }
-        );
-        asset3dUrl = blob.url;
-        console.log("✅ 3D asset generated & uploaded:", asset3dUrl);
-      } catch (e) {
-        console.error("❌ Meshy 3D generation/upload failed:", e);
-        // Meshy API 실패해도 다른 데이터는 저장되도록 계속 진행
+    } else if (imageUrl && !meshyTaskId) {
+      // asset3d가 없고 imageUrl이 있으면 Meshy task 생성 (polling은 클라이언트에서)
+      console.log("🔧 Creating Meshy task...");
+      meshyTaskId = await createMeshyTask({ imageUrl });
+      if (meshyTaskId) {
+        console.log("✅ Meshy task ID saved:", meshyTaskId);
+      } else {
+        console.log("⚠️ Failed to create Meshy task");
       }
     } else {
       console.log("⚠️ No 3D asset or image provided");
@@ -255,6 +206,7 @@ export async function POST(request: Request) {
       emotion: updatedEmotion,
       imageUrl,
       asset3dUrl,
+      meshyTaskId,
       podcastUrl,
       bgmUrl,
       updatedAt: new Date().toISOString(),
