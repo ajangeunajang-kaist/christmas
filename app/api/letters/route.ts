@@ -117,13 +117,14 @@ async function createMeshyTask({
     console.log("🚀 Creating Meshy text-to-3d task with prompt:", prompt);
 
     const requestBody = {
-      mode: "preview",
       prompt: prompt,
       ai_model: "meshy-5",
       topology: "triangle",
-      target_polycount: 100,
+      target_polycount: 200,
       should_remesh: true,
       art_style: "sculpture", // 카툰 스타일에 적합
+      should_texture: true,
+      enable_pbr: false,
     };
     console.log("📦 Request body:", JSON.stringify(requestBody, null, 2));
 
