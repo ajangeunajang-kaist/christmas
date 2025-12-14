@@ -178,6 +178,7 @@ export async function POST(request: Request) {
     const podcastScript = formData.get("podcastScript") as string;
     const emotion = formData.get("emotion") as string;
     const imageUrlFromForm = formData.get("imageUrl") as string | null;
+    const asset3dUrlFromForm = formData.get("asset3dUrl") as string | null;
     const image = formData.get("image") as File | null;
     const asset3d = formData.get("3dAsset") as File | null;
     const podcast = formData.get("podcast") as File | null;
@@ -269,6 +270,10 @@ export async function POST(request: Request) {
       );
       asset3dUrl = blob.url;
       console.log("✅ 3D asset uploaded:", asset3dUrl);
+    } else if (asset3dUrlFromForm) {
+      // formData에서 받은 asset3dUrl이 있으면 사용
+      asset3dUrl = asset3dUrlFromForm;
+      console.log("✅ 3D asset URL from form:", asset3dUrl);
     } else if (imageUrl && story && !meshyTaskId) {
       // asset3d가 없고 imageUrl과 story가 있으면 text-to-3d task 생성
       console.log("🔧 Creating Meshy text-to-3d task...");
