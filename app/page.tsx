@@ -66,7 +66,7 @@ export default function Home() {
             clearInterval(pollInterval);
             setIsGenerating(false);
             setTimeout(() => {
-              router.push("/complete");
+              router.push(`/complete?ornamentId=${ornamentId}`);
             }, 500);
           } else if (data.status === "FAILED") {
             clearInterval(pollInterval);
@@ -145,7 +145,7 @@ export default function Home() {
           } else {
             console.log("⚠️ No meshyTaskId found, redirecting to complete page");
             // Meshy task가 없으면 바로 완료 페이지로
-            router.push("/complete");
+            router.push(`/complete?ornamentId=${newOrnamentId}`);
           }
         }, 100);
       } else {

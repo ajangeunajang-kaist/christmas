@@ -117,6 +117,7 @@ async function createMeshyTask({
     console.log("🚀 Creating Meshy text-to-3d task with prompt:", prompt);
 
     const requestBody = {
+      mode: "preview",
       prompt: prompt,
       ai_model: "meshy-5",
       topology: "triangle",
