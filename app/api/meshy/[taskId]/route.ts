@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 
 const BLOB_TOKEN: string | undefined = process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_TOKEN || undefined;
 
@@ -10,6 +10,8 @@ export async function GET(
 ) {
   try {
     const { taskId } = await params;
+    const { searchParams } = new URL(request.url);
+    const ornamentId = searchParams.get("ornamentId");
     const apiKey = process.env.MESHY_API_KEY;
 
     if (!apiKey) {
@@ -76,6 +78,44 @@ export async function GET(
 
       result.asset3dUrl = blob.url;
       console.log("✅ 3D asset uploaded:", blob.url);
+
+      // letter JSON 업데이트
+      if (ornamentId) {
+        try {
+          // 기존 letter 데이터 가져오기
+          const { blobs } = await list({
+            prefix: `letters/${ornamentId}.json`,
+            token: BLOB_TOKEN
+          });
+
+          if (blobs.length > 0) {
+            const letterBlob = blobs[0];
+            const letterResponse = await fetch(letterBlob.url);
+            const letterData = await letterResponse.json();
+
+            // asset3dUrl 업데이트
+            const updatedLetterData = {
+              ...letterData,
+              asset3dUrl: blob.url,
+              updatedAt: new Date().toISOString(),
+            };
+
+            // letter JSON 저장
+            await put(`letters/${ornamentId}.json`, JSON.stringify(updatedLetterData), {
+              access: "public",
+              contentType: "application/json",
+              allowOverwrite: true,
+              token: BLOB_TOKEN,
+            });
+
+            console.log("✅ Letter data updated with asset3dUrl");
+          } else {
+            console.warn("⚠️ Could not find letter data to update");
+          }
+        } catch (error) {
+          console.error("❌ Failed to update letter data:", error);
+        }
+      }
     }
 
     if (status.status === "FAILED") {

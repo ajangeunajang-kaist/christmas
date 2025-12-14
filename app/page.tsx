@@ -13,6 +13,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [meshyTaskId, setMeshyTaskId] = useState<string | null>(null);
+  const [ornamentId, setOrnamentId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,11 +30,11 @@ export default function Home() {
 
   // Meshy task polling
   useEffect(() => {
-    if (!meshyTaskId) return;
+    if (!meshyTaskId || !ornamentId) return;
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/meshy/${meshyTaskId}`);
+        const response = await fetch(`/api/meshy/${meshyTaskId}?ornamentId=${ornamentId}`);
 
         if (!response.ok) {
           console.error("Polling failed:", response.status, response.statusText);
@@ -69,7 +70,7 @@ export default function Home() {
     }, 3000); // 3초마다 확인
 
     return () => clearInterval(pollInterval);
-  }, [meshyTaskId, router]);
+  }, [meshyTaskId, ornamentId, router]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,8 +96,9 @@ export default function Home() {
     try {
       const formData = new FormData();
       // ornamentId 추가 (고유 ID 생성)
-      const ornamentId = `ornament_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      formData.append("ornamentId", ornamentId);
+      const newOrnamentId = `ornament_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setOrnamentId(newOrnamentId);
+      formData.append("ornamentId", newOrnamentId);
       formData.append("story", letter);
 
       if (imagePreview) {
@@ -145,7 +147,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Progress Bar Overlay */}
         {isGenerating && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-[#3A3A3A] flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
               <div className="text-center mb-6">
                 <div className="text-6xl mb-4">🎨</div>
@@ -153,10 +155,10 @@ export default function Home() {
                   className="text-2xl mb-2"
                   style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
                 >
-                  Creating Your 3D Ornament
+                  Creating Your Mornament
                 </h2>
                 <p className="text-lg text-gray-600">
-                  This may take 3-5 minutes...
+                  This may take 5-6 minutes...
                 </p>
               </div>
 
