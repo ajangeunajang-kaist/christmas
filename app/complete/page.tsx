@@ -141,11 +141,7 @@ function CompletePageContent() {
               Creating your Mornament... {progress}%
             </div>
           </div>
-        ) : (
-          <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce">
-            🎁
-          </div>
-        )}
+        ) }
 
         {/* Buttons */}
         <div className="flex flex-col gap-4 flex-wrap justify-center">
