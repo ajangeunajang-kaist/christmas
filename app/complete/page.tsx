@@ -138,14 +138,22 @@ function CompletePageContent() {
               🎁
             </div>
             <div className="text-lg font-[family-name:var(--font-eb-garamond)]">
-              Creating your Mornament... {progress}%
+              Unwrapping the present... {progress}%
             </div>
           </div>
-        ) }
+        ) :  <div className="flex flex-col items-center gap-4">
+            <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce">
+              🎁
+            </div>
+            <div className="text-lg font-[family-name:var(--font-eb-garamond)]">
+              Unwrapping the present... {progress}%
+            </div>
+          </div>}
 
         {/* Buttons */}
         <div className="flex flex-col gap-4 flex-wrap justify-center">
           <a
+            target="_blank"
             href="https://my-3d-zoo.vercel.app"
             style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
             className="p-8 text-3xl bg-[#424242] text-white rounded-[100%] hover:text-white transition-all"

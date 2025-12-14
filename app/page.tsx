@@ -164,7 +164,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Progress Bar Overlay */}
         {isGenerating && (
-          <div className="fixed  text-[#CFD1C3] inset-0 bg-[#3A3A3A] flex flex-col items-center justify-center z-50">
+          <div className="fixed text-[#CFD1C3] inset-0 bg-[#3A3A3A] flex flex-col items-center justify-center z-50">
             <h2
               className="text-[clamp(4rem,6vw,5rem)] leading-none  mb-2"
               style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
