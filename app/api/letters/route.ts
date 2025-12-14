@@ -51,12 +51,20 @@ async function createMeshyTask({
 }): Promise<string | null> {
   const apiKey = process.env.MESHY_API_KEY;
   if (!apiKey) {
-    console.error("MESHY_API_KEY is not set");
+    console.error("❌ MESHY_API_KEY is not set");
     return null;
   }
 
   try {
     console.log("🚀 Creating Meshy text-to-3d task with prompt:", prompt);
+
+    const requestBody = {
+      mode: "preview",
+      prompt: prompt,
+      art_style: "cartoon",
+      negative_prompt: "high poly, realistic, complex details",
+    };
+    console.log("📦 Request body:", JSON.stringify(requestBody, null, 2));
 
     const createResponse = await fetch("https://api.meshy.ai/v2/text-to-3d", {
       method: "POST",
@@ -64,27 +72,33 @@ async function createMeshyTask({
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        mode: "preview",
-        prompt: prompt,
-        art_style: "cartoon",
-        negative_prompt: "high poly, realistic, complex details",
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log("📡 Response status:", createResponse.status);
 
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
-      console.error(`Meshy task creation failed: ${createResponse.status} ${errorText}`);
+      console.error(`❌ Meshy task creation failed: ${createResponse.status}`);
+      console.error(`❌ Error response:`, errorText);
       return null;
     }
 
     const taskData = await createResponse.json();
-    const taskId = taskData.result || taskData.id;
-    console.log("✅ Meshy text-to-3d task created:", taskId);
+    console.log("📥 Response data:", JSON.stringify(taskData, null, 2));
 
+    const taskId = taskData.result || taskData.id;
+
+    if (!taskId) {
+      console.error("❌ No task ID in response:", taskData);
+      return null;
+    }
+
+    console.log("✅ Meshy text-to-3d task created:", taskId);
     return taskId;
   } catch (e) {
-    console.error("❌ Meshy task creation failed:", e);
+    console.error("❌ Meshy task creation exception:", e);
+    console.error("❌ Exception details:", JSON.stringify(e, null, 2));
     return null;
   }
 }
