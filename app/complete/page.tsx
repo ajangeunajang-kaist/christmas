@@ -134,7 +134,7 @@ function CompletePageContent() {
           </div>
         ) : isLoading ? (
           <div className="flex flex-col items-center gap-4">
-            <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce">
+            <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce animate-pulse">
               🎁
             </div>
             <div className="text-lg font-[family-name:var(--font-eb-garamond)]">
@@ -142,7 +142,7 @@ function CompletePageContent() {
             </div>
           </div>
         ) :  <div className="flex flex-col items-center gap-4">
-            <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce">
+            <div className="mt-8 text-[40vw] sm:text-[15vw] select-none animate-bounce animate-pulse">
               🎁
             </div>
             <div className="text-lg font-[family-name:var(--font-eb-garamond)]">
