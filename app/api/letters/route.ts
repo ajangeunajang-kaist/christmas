@@ -32,8 +32,13 @@ async function generateGLBWithMeshy({ imageUrl }: { imageUrl: string }) {
   }
 
   const taskData = await createResponse.json();
-  const taskId = taskData.id;
+  console.log("📋 Meshy API response:", JSON.stringify(taskData, null, 2));
+  const taskId = taskData.result || taskData.id || taskData.task_id;
   console.log("✅ Meshy task created:", taskId);
+
+  if (!taskId) {
+    throw new Error("No task ID in Meshy response");
+  }
 
   // 2. Polling으로 task 완료 대기 (최대 10분)
   const maxAttempts = 120; // 10분 (5초 간격)
