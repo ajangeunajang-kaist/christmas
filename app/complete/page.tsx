@@ -117,16 +117,14 @@ function CompletePageContent() {
           className="text-[clamp(3rem,5vw,4rem)] leading-tight text-[#424242]"
           style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
         >
-          {letterData?.asset3dUrl
-            ? "Your Mornament is ready!"
-            : "A gift is waiting under the tree!"}
+           A gift is waiting under the tree!
         </h1>
 
         {/* Message */}
         <p className="text-lg lg:text-2xl leading-relaxed font-[family-name:var(--font-eb-garamond)] max-w-2xl">
           {letterData?.asset3dUrl
-            ? "Your memory has become a Mornament. Rotate and explore your creation!"
-            : "Your memory is becoming a Mornament. Fold the paper, create yours, and hang it on the tree to share your story with others."}
+            ? "Rotate and explore your Mornament!"
+            : "Fold the paper, create yours, and hang it on the tree to share your story with others."}
         </p>
 
         {/* GLB Viewer 또는 로딩 상태 */}
@@ -140,7 +138,7 @@ function CompletePageContent() {
               🎁
             </div>
             <div className="text-lg font-[family-name:var(--font-eb-garamond)]">
-              Creating your 3D ornament... {progress}%
+              Creating your Mornament... {progress}%
             </div>
           </div>
         ) : (
