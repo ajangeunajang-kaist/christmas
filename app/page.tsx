@@ -116,21 +116,26 @@ export default function Home() {
       console.log("Submit response:", data);
 
       if (data.success) {
+        console.log("✅ Submit successful, data:", data.data);
+        console.log("🔍 meshyTaskId:", data.data.meshyTaskId);
+        console.log("🔍 extractedObject:", data.data.extractedObject);
+
         setTimeout(() => {
           setIsAnimating(false);
 
           // Meshy task가 있으면 progress bar 표시
           if (data.data.meshyTaskId) {
-            console.log("Starting 3D generation with task ID:", data.data.meshyTaskId);
+            console.log("🚀 Starting 3D generation with task ID:", data.data.meshyTaskId);
             setMeshyTaskId(data.data.meshyTaskId);
             setIsGenerating(true);
+            console.log("✅ isGenerating set to true");
             setProgress(0);
           } else {
-            console.log("No meshyTaskId found, redirecting to complete page");
+            console.log("⚠️ No meshyTaskId found, redirecting to complete page");
             // Meshy task가 없으면 바로 완료 페이지로
             router.push("/complete");
           }
-        }, 1000);
+        }, 500);
       } else {
         alert(`Failed to save: ${data.error}`);
         setIsAnimating(false);
