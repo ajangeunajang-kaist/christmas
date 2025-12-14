@@ -21,9 +21,9 @@ export async function GET(
       );
     }
 
-    // Meshy API에서 task 상태 조회
+    // Meshy API에서 task 상태 조회 (text-to-3d v2)
     const statusResponse = await fetch(
-      `https://api.meshy.ai/openapi/v1/image-to-3d/${taskId}`,
+      `https://api.meshy.ai/v2/text-to-3d/${taskId}`,
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,

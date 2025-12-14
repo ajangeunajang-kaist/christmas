@@ -215,7 +215,7 @@ export async function POST(request: Request) {
         console.log("⚠️ Failed to extract object from image");
       }
     } else {
-      console.log("⚠️ No 3D asset or required data (image + story) provided");
+      console.log("⚠️ No 3D asset or required data (image & story) provided");
     }
 
     let podcastUrl = existingData.podcastUrl;
