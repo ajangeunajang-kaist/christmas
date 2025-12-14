@@ -148,9 +148,9 @@ export default function Home() {
         {/* Progress Bar Overlay */}
         {isGenerating && (
           <div className="fixed inset-0 bg-[#3A3A3A] flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
+            <div className="bg-[#C9CABC] p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
               <div className="text-center mb-6">
-                <div className="text-6xl mb-4">🎨</div>
+                <div className="text-6xl mb-4">🦌🛷</div>
                 <h2
                   className="text-2xl mb-2"
                   style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
@@ -158,7 +158,7 @@ export default function Home() {
                   Creating Your Mornament
                 </h2>
                 <p className="text-lg text-gray-600">
-                  This may take 5-6 minutes...
+                  This may take 5-6 minutes! Take a little time...
                 </p>
               </div>
 
