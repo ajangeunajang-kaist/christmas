@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../components/Footer";
 import GLBViewer from "../components/GLBViewer";
@@ -16,7 +16,7 @@ interface LetterData {
   [key: string]: any;
 }
 
-export default function CompletePage() {
+function CompletePageContent() {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [letterData, setLetterData] = useState<LetterData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -172,5 +172,19 @@ export default function CompletePage() {
         <Footer />
       </main>
     </div>
+  );
+}
+
+export default function CompletePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex text-[#424242] min-h-screen items-center justify-center bg-[#CFD1C3]">
+          <div className="text-2xl">Loading...</div>
+        </div>
+      }
+    >
+      <CompletePageContent />
+    </Suspense>
   );
 }
