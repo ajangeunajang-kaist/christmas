@@ -147,18 +147,20 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center gap-8 py-16 px-8">
         {/* Progress Bar Overlay */}
         {isGenerating && (
-          <div className="fixed inset-0 bg-[#3A3A3A] flex items-center justify-center z-50">
-            <div className="bg-[#C9CABC] p-8 rounded-lg shadow-2xl max-w-md w-full mx-4">
+          <div className="fixed  text-[#CFD1C3] inset-0 bg-[#3A3A3A] flex flex-col items-center justify-center z-50">
+            <h2
+              className="text-[clamp(4rem,6vw,5rem)] leading-none  mb-2"
+              style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
+            >
+              Santa is coming
+            </h2>
+            <div className="p-8 max-w-md w-full mx-4">
               <div className="text-center mb-6">
-                <div className="text-6xl mb-4">🦌🛷</div>
-                <h2
-                  className="text-2xl mb-2"
-                  style={{ fontFamily: fontLoaded ? "Trattatello, serif" : "serif" }}
-                >
-                  Creating Your Mornament
-                </h2>
-                <p className="text-lg text-gray-600">
-                  This may take 5-6 minutes! Take a little time...
+                <div className="flex text-[40vw] sm:text-[15vw] select-none mb-4"><div className="animate-bounce delay-[0.2s]">🦌</div><div className="animate-bounce" style={{ animationDelay: "0.2s" }}
+                >🛷</div></div>
+
+                <p className="text-lg">
+                  This may take 5-6 minutes! Turning your memory into a Mornament.
                 </p>
               </div>
 
@@ -171,13 +173,12 @@ export default function Home() {
               </div>
 
               {/* Progress Text */}
-              <div className="text-center text-sm text-gray-500">
-                {progress}% Complete
+              <div className="text-center text-sm">
+                {progress}%
               </div>
             </div>
           </div>
         )}
-
         {/* Header */}
         <div className="text-center">
           <div className="text-[40vw] sm:text-[20vw] select-none">🎄</div>
@@ -195,11 +196,10 @@ export default function Home() {
 
         {/* Letter Writing Section */}
         <div
-          className={`w-full h-full bg-white dark:bg-zinc-900 shadow-2xl p-8 transition-all duration-1000 ${
-            isAnimating
-              ? "opacity-0 scale-50 translate-y-96"
-              : "opacity-100 scale-100 translate-y-0"
-          }`}
+          className={`w-full h-full bg-white dark:bg-zinc-900 shadow-2xl p-8 transition-all duration-1000 ${isAnimating
+            ? "opacity-0 scale-50 translate-y-96"
+            : "opacity-100 scale-100 translate-y-0"
+            }`}
         >
           <textarea
             value={letter}
@@ -260,9 +260,8 @@ export default function Home() {
 
         {/* Christmas Present Animation */}
         <div
-          className={`fixed bottom-0 left-0 text-center w-full text-[40vw] transition-all duration-1000 ${
-            isAnimating ? "translate-y-0 scale-110" : "translate-y-full"
-          }`}
+          className={`fixed bottom-0 left-0 text-center w-full text-[40vw] transition-all duration-1000 ${isAnimating ? "translate-y-0 scale-110" : "translate-y-full"
+            }`}
         >
           🎁
         </div>
