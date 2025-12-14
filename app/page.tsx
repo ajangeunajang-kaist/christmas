@@ -185,7 +185,7 @@ export default function Home() {
           Send Your Letter!
         </button>
 
-        {/* Christmas Stocking Animation */}
+        {/* Christmas Present Animation */}
         <div
           className={`fixed bottom-0 left-0 text-center w-full text-[40vw] transition-all duration-1000 ${
             isAnimating ? "translate-y-0 scale-110" : "translate-y-full"

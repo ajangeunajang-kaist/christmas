@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { put, list } from "@vercel/blob";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import fs from "fs/promises";
+
+const execFileAsync = promisify(execFile);
+
+// Support multiple env var names for the blob token (VERCEL UI vs local .env)
+const BLOB_TOKEN: string | undefined = process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_TOKEN || undefined;
 
 export async function POST(request: Request) {
   try {
@@ -51,9 +59,7 @@ export async function POST(request: Request) {
 
     try {
       const existingBlob = await fetch(
-        `${process.env.BLOB_READ_WRITE_TOKEN ? "https://" : ""}${
-          process.env.VERCEL_URL || "localhost:3000"
-        }/api/letters/${ornamentId}`
+        `${BLOB_TOKEN ? "https://" : ""}${process.env.VERCEL_URL || "localhost:3000"}/api/letters/${ornamentId}`
       );
       if (existingBlob.ok) {
         const existing = await existingBlob.json();
@@ -72,6 +78,7 @@ export async function POST(request: Request) {
         image,
         {
           access: "public",
+          token: BLOB_TOKEN,
         }
       );
       imageUrl = blob.url;
@@ -92,6 +99,7 @@ export async function POST(request: Request) {
           access: "public",
           contentType: "model/gltf-binary",
           allowOverwrite: true,
+          token: BLOB_TOKEN,
         }
       );
       asset3dUrl = blob.url;
@@ -109,6 +117,7 @@ export async function POST(request: Request) {
           access: "public",
           contentType: "audio/wav",
           allowOverwrite: true,
+          token: BLOB_TOKEN,
         }
       );
       podcastUrl = blob.url;
@@ -124,6 +133,7 @@ export async function POST(request: Request) {
           access: "public",
           contentType: "audio/wav",
           allowOverwrite: true,
+          token: BLOB_TOKEN,
         }
       );
       bgmUrl = blob.url;
@@ -155,7 +165,50 @@ export async function POST(request: Request) {
       access: "public",
       contentType: "application/json",
       allowOverwrite: true,
+      token: BLOB_TOKEN,
     });
+
+    // If no 3D asset was provided, try to generate one via a Python script
+    if (!asset3dUrl && imageUrl) {
+      try {
+        console.log("🔧 Generating 3D asset via Python script...");
+        const outPath = `/tmp/${ornamentId}_${timestamp}.glb`;
+        // call Python script that runs your Meshy pipeline and writes a GLB to outPath
+        const { stdout, stderr } = await execFileAsync("python3", ["./scripts/generate_glb.py", "--text", updatedStory || "", "--image", imageUrl, "--out", outPath], {
+          env: process.env,
+          cwd: process.cwd(),
+          timeout: 10 * 60 * 1000,
+        });
+        if (stdout) console.log("python stdout:", stdout);
+        if (stderr) console.error("python stderr:", stderr);
+
+        const glbBuffer = await fs.readFile(outPath);
+        const blob = await put(
+          `3d-assets/${ornamentId}_${timestamp}.glb`,
+          glbBuffer,
+          {
+            access: "public",
+            contentType: "model/gltf-binary",
+            allowOverwrite: true,
+            token: BLOB_TOKEN,
+          }
+        );
+        asset3dUrl = blob.url;
+        letterData.asset3dUrl = asset3dUrl;
+
+        // write updated metadata including asset3dUrl
+        await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
+          access: "public",
+          contentType: "application/json",
+          allowOverwrite: true,
+          token: BLOB_TOKEN,
+        });
+
+        console.log("✅ Generated and uploaded 3D asset:", asset3dUrl);
+      } catch (e) {
+        console.error("3D generation/upload failed:", e);
+      }
+    }
 
     return NextResponse.json({ success: true, data: letterData });
   } catch (error) {
@@ -169,7 +222,7 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const { blobs } = await list({ prefix: "letters/" });
+    const { blobs } = await list({ prefix: "letters/", token: BLOB_TOKEN });
 
     const letters = await Promise.all(
       blobs.map(async (blob: any) => {
