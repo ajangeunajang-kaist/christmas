@@ -13,6 +13,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [meshyTaskId, setMeshyTaskId] = useState<string | null>(null);
+  const [refineTaskId, setRefineTaskId] = useState<string | null>(null);
   const [ornamentId, setOrnamentId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -32,9 +33,12 @@ export default function Home() {
   useEffect(() => {
     if (!meshyTaskId || !ornamentId) return;
 
+    // refineTaskId가 있으면 그것을 polling, 없으면 meshyTaskId를 polling
+    const currentTaskId = refineTaskId || meshyTaskId;
+
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/meshy/${meshyTaskId}?ornamentId=${ornamentId}`);
+        const response = await fetch(`/api/meshy/${currentTaskId}?ornamentId=${ornamentId}`);
 
         if (!response.ok) {
           console.error("Polling failed:", response.status, response.statusText);
@@ -49,6 +53,14 @@ export default function Home() {
           setProgress(currentProgress);
           console.log(`Progress: ${currentProgress}%`);
 
+          // Preview task 완료 후 refine task가 생성되면 refineTaskId 저장
+          if (data.refineTaskId && !refineTaskId) {
+            console.log("🎨 Refine task ID received:", data.refineTaskId);
+            setRefineTaskId(data.refineTaskId);
+            setProgress(0); // Progress 리셋
+          }
+
+          // Refine task 완료 시에만 완료 페이지로 이동
           if (data.status === "SUCCEEDED" && data.asset3dUrl) {
             // 완료되면 polling 중지하고 complete 페이지로 이동
             clearInterval(pollInterval);
@@ -70,7 +82,7 @@ export default function Home() {
     }, 5000); // 5초마다 확인
 
     return () => clearInterval(pollInterval);
-  }, [meshyTaskId, ornamentId, router]);
+  }, [meshyTaskId, refineTaskId, ornamentId, router]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,7 +147,7 @@ export default function Home() {
             // Meshy task가 없으면 바로 완료 페이지로
             router.push("/complete");
           }
-        }, 500);
+        }, 100);
       } else {
         alert(`Failed to save: ${data.error}`);
         setIsAnimating(false);

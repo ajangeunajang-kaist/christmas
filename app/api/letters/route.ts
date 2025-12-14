@@ -43,6 +43,64 @@ async function extractObjectFromImage(imageUrl: string): Promise<string | null> 
   }
 }
 
+// Meshy API refine task 생성 함수
+async function createMeshyRefineTask({
+  previewTaskId
+}: {
+  previewTaskId: string;
+}): Promise<string | null> {
+  const apiKey = process.env.MESHY_API_KEY;
+  if (!apiKey) {
+    console.error("❌ MESHY_API_KEY is not set");
+    return null;
+  }
+
+  try {
+    console.log("🎨 Creating Meshy refine task for preview:", previewTaskId);
+
+    const requestBody = {
+      mode: "refine",
+      preview_task_id: previewTaskId,
+    };
+    console.log("📦 Refine request body:", JSON.stringify(requestBody, null, 2));
+
+    const createResponse = await fetch("https://api.meshy.ai/v2/text-to-3d", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    console.log("📡 Refine response status:", createResponse.status);
+
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      console.error(`❌ Meshy refine task creation failed: ${createResponse.status}`);
+      console.error(`❌ Error response:`, errorText);
+      return null;
+    }
+
+    const taskData = await createResponse.json();
+    console.log("📥 Refine response data:", JSON.stringify(taskData, null, 2));
+
+    const taskId = taskData.result || taskData.id;
+
+    if (!taskId) {
+      console.error("❌ No task ID in refine response:", taskData);
+      return null;
+    }
+
+    console.log("✅ Meshy refine task created:", taskId);
+    return taskId;
+  } catch (e) {
+    console.error("❌ Meshy refine task creation exception:", e);
+    console.error("❌ Exception details:", JSON.stringify(e, null, 2));
+    return null;
+  }
+}
+
 // Meshy API text-to-3d task 생성 함수
 async function createMeshyTask({
   prompt
@@ -65,7 +123,6 @@ async function createMeshyTask({
       topology: "triangle",
       target_polycount: 100,
       should_remesh: true,
-      should_texture: true,
       art_style: "sculpture", // 카툰 스타일에 적합
     };
     console.log("📦 Request body:", JSON.stringify(requestBody, null, 2));
