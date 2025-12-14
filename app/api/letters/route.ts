@@ -1,10 +1,34 @@
 import { NextResponse } from "next/server";
 import { put, list } from "@vercel/blob";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import fs from "fs/promises";
 
-const execFileAsync = promisify(execFile);
+// Meshy API로 GLB 생성 함수
+async function generateGLBWithMeshy({ prompt, imageUrl }: { prompt: string; imageUrl: string }) {
+  const apiKey = process.env.MESHY_API_KEY;
+  if (!apiKey) throw new Error("MESHY_API_KEY is not set");
+  // Meshy API endpoint 및 payload는 실제 API 문서에 맞게 수정 필요
+  const response = await fetch("https://api.meshy.ai/v1/text-to-3d", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+      image: imageUrl,
+      format: "glb"
+    }),
+  });
+  if (!response.ok) throw new Error("Meshy API failed");
+  // Meshy가 바로 GLB 바이너리를 반환한다면 blob으로, 아니라면 url 등으로 처리
+  const result = await response.json();
+  // result.glb_url 등 실제 반환값에 맞게 수정 필요
+  if (!result.glb_url) throw new Error("No GLB url from Meshy");
+  // GLB 파일 다운로드
+  const glbRes = await fetch(result.glb_url);
+  if (!glbRes.ok) throw new Error("Failed to download GLB");
+  const glbBuffer = Buffer.from(await glbRes.arrayBuffer());
+  return glbBuffer;
+}
 
 // Support multiple env var names for the blob token (VERCEL UI vs local .env)
 const BLOB_TOKEN: string | undefined = process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN || process.env.BLOB_TOKEN || undefined;
@@ -104,8 +128,28 @@ export async function POST(request: Request) {
       );
       asset3dUrl = blob.url;
       console.log("✅ 3D asset uploaded:", asset3dUrl);
+    } else if (imageUrl) {
+      // asset3d가 없고 imageUrl이 있으면 Meshy API로 생성 시도
+      try {
+        console.log("🔧 Generating 3D asset via Meshy API...");
+        const glbBuffer = await generateGLBWithMeshy({ prompt: story || ornamentName || "", imageUrl });
+        const blob = await put(
+          `3d-assets/${ornamentId}_${timestamp}.glb`,
+          glbBuffer,
+          {
+            access: "public",
+            contentType: "model/gltf-binary",
+            allowOverwrite: true,
+            token: BLOB_TOKEN,
+          }
+        );
+        asset3dUrl = blob.url;
+        console.log("✅ 3D asset generated & uploaded:", asset3dUrl);
+      } catch (e) {
+        console.error("Meshy 3D generation/upload failed:", e);
+      }
     } else {
-      console.log("⚠️ No 3D asset received");
+      console.log("⚠️ No 3D asset or image provided");
     }
 
     let podcastUrl = existingData.podcastUrl;
@@ -168,47 +212,7 @@ export async function POST(request: Request) {
       token: BLOB_TOKEN,
     });
 
-    // If no 3D asset was provided, try to generate one via a Python script
-    if (!asset3dUrl && imageUrl) {
-      try {
-        console.log("🔧 Generating 3D asset via Python script...");
-        const outPath = `/tmp/${ornamentId}_${timestamp}.glb`;
-        // call Python script that runs your Meshy pipeline and writes a GLB to outPath
-        const { stdout, stderr } = await execFileAsync("python3", ["./scripts/generate_glb.py", "--text", updatedStory || "", "--image", imageUrl, "--out", outPath], {
-          env: process.env,
-          cwd: process.cwd(),
-          timeout: 10 * 60 * 1000,
-        });
-        if (stdout) console.log("python stdout:", stdout);
-        if (stderr) console.error("python stderr:", stderr);
-
-        const glbBuffer = await fs.readFile(outPath);
-        const blob = await put(
-          `3d-assets/${ornamentId}_${timestamp}.glb`,
-          glbBuffer,
-          {
-            access: "public",
-            contentType: "model/gltf-binary",
-            allowOverwrite: true,
-            token: BLOB_TOKEN,
-          }
-        );
-        asset3dUrl = blob.url;
-        letterData.asset3dUrl = asset3dUrl;
-
-        // write updated metadata including asset3dUrl
-        await put(`letters/${ornamentId}.json`, JSON.stringify(letterData), {
-          access: "public",
-          contentType: "application/json",
-          allowOverwrite: true,
-          token: BLOB_TOKEN,
-        });
-
-        console.log("✅ Generated and uploaded 3D asset:", asset3dUrl);
-      } catch (e) {
-        console.error("3D generation/upload failed:", e);
-      }
-    }
+    // 기존 파이썬 스크립트 호출 부분 삭제 (Meshy API로 대체)
 
     return NextResponse.json({ success: true, data: letterData });
   } catch (error) {
