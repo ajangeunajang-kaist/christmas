@@ -223,17 +223,34 @@ export async function POST(request: Request) {
     };
 
     try {
-      const existingBlob = await fetch(
-        `${BLOB_TOKEN ? "https://" : ""}${process.env.VERCEL_URL || "localhost:3000"}/api/letters/${ornamentId}`
-      );
-      if (existingBlob.ok) {
-        const existing = await existingBlob.json();
-        if (existing.success) {
-          existingData = { ...existingData, ...existing.data };
-        }
+      console.log("🔍 Fetching existing data for ornamentId:", ornamentId);
+
+      // Vercel Blob에서 직접 가져오기 (API 호출 대신)
+      const { blobs } = await list({
+        prefix: `letters/${ornamentId}.json`,
+        token: BLOB_TOKEN,
+      });
+
+      console.log("📦 Found blobs:", blobs.length);
+
+      if (blobs.length > 0) {
+        const letterBlob = blobs[0];
+        const response = await fetch(letterBlob.url);
+        const letterData = await response.json();
+
+        console.log("✅ Existing letterData loaded:", {
+          hasRefineTaskId: !!letterData.refineTaskId,
+          refineTaskId: letterData.refineTaskId,
+          hasMeshyTaskId: !!letterData.meshyTaskId
+        });
+
+        existingData = { ...existingData, ...letterData };
+        console.log("✅ existingData merged, refineTaskId:", existingData.refineTaskId);
+      } else {
+        console.log("ℹ️ No existing data found, will create new");
       }
     } catch (e) {
-      console.log("No existing data found, creating new");
+      console.log("❌ Error fetching existing data:", e);
     }
 
     let imageUrl = existingData.imageUrl;
