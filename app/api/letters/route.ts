@@ -179,6 +179,7 @@ export async function POST(request: Request) {
     const emotion = formData.get("emotion") as string;
     const imageUrlFromForm = formData.get("imageUrl") as string | null;
     const asset3dUrlFromForm = formData.get("asset3dUrl") as string | null;
+    const refineTaskIdFromForm = formData.get("refineTaskId") as string | null;
     const image = formData.get("image") as File | null;
     const asset3d = formData.get("3dAsset") as File | null;
     const podcast = formData.get("podcast") as File | null;
@@ -255,7 +256,7 @@ export async function POST(request: Request) {
 
     let asset3dUrl = existingData.asset3dUrl;
     let meshyTaskId = existingData.meshyTaskId || null;
-    let refineTaskId = existingData.refineTaskId || null;
+    let refineTaskId = refineTaskIdFromForm || existingData.refineTaskId || null;
     let extractedObject = existingData.extractedObject || null;
 
     if (asset3d) {
