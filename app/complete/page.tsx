@@ -67,10 +67,11 @@ function CompletePageContent() {
             return;
           }
 
-          // refineTaskId가 있으면 상태 폴링
-          if (result.data.refineTaskId) {
+          // meshyTaskId 또는 refineTaskId가 있으면 상태 폴링
+          const taskIdToCheck = result.data.refineTaskId || result.data.meshyTaskId;
+          if (taskIdToCheck) {
             const statusResponse = await fetch(
-              `/api/meshy/${result.data.refineTaskId}?ornamentId=${ornamentId}`
+              `/api/meshy/${taskIdToCheck}?ornamentId=${ornamentId}`
             );
             if (statusResponse.ok) {
               const statusResult = await statusResponse.json();
@@ -78,8 +79,8 @@ function CompletePageContent() {
                 setProgress(statusResult.progress);
               }
 
-              // asset3dUrl이 업데이트되었으면 다시 fetch
-              if (statusResult.asset3dUrl) {
+              // refineTaskId가 생성되었거나 asset3dUrl이 업데이트되었으면 다시 fetch
+              if (statusResult.refineTaskId || statusResult.asset3dUrl) {
                 await fetchLetterData();
               }
             }
