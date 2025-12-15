@@ -177,7 +177,7 @@ export default function Home() {
                 >🛷</div></div>
 
                 <p className="text-lg">
-                  This may take 5-6 minutes! Turning your memory into a Mornament.
+                  This may take 10 minutes! Turning your memory into a Mornament.
                 </p>
               </div>
 
