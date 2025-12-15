@@ -214,6 +214,7 @@ export async function POST(request: Request) {
       extractedObject: null,
       asset3dUrl: null,
       meshyTaskId: null,
+      refineTaskId: null,
       podcastUrl: null,
       bgmUrl: null,
       createdAt: new Date().toISOString(),
@@ -254,6 +255,7 @@ export async function POST(request: Request) {
 
     let asset3dUrl = existingData.asset3dUrl;
     let meshyTaskId = existingData.meshyTaskId || null;
+    let refineTaskId = existingData.refineTaskId || null;
     let extractedObject = existingData.extractedObject || null;
 
     if (asset3d) {
@@ -348,6 +350,7 @@ export async function POST(request: Request) {
       extractedObject,
       asset3dUrl,
       meshyTaskId,
+      refineTaskId,
       podcastUrl,
       bgmUrl,
       updatedAt: new Date().toISOString(),
