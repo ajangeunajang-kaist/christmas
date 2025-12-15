@@ -173,10 +173,10 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const ornamentId = formData.get("ornamentId") as string;
-    const ornamentName = formData.get("ornamentName") as string;
-    const story = formData.get("story") as string;
-    const podcastScript = formData.get("podcastScript") as string;
-    const emotion = formData.get("emotion") as string;
+    const ornamentName = formData.get("ornamentName") as string | null;
+    const story = formData.get("story") as string | null;
+    const podcastScript = formData.get("podcastScript") as string | null;
+    const emotion = formData.get("emotion") as string | null;
     const imageUrlFromForm = formData.get("imageUrl") as string | null;
     const asset3dUrlFromForm = formData.get("asset3dUrl") as string | null;
     const refineTaskIdFromForm = formData.get("refineTaskId") as string | null;
@@ -241,11 +241,17 @@ export async function POST(request: Request) {
         console.log("✅ Existing letterData loaded:", {
           hasRefineTaskId: !!letterData.refineTaskId,
           refineTaskId: letterData.refineTaskId,
-          hasMeshyTaskId: !!letterData.meshyTaskId
+          hasMeshyTaskId: !!letterData.meshyTaskId,
+          hasPodcastUrl: !!letterData.podcastUrl,
+          hasBgmUrl: !!letterData.bgmUrl
         });
 
         existingData = { ...existingData, ...letterData };
-        console.log("✅ existingData merged, refineTaskId:", existingData.refineTaskId);
+        console.log("✅ existingData merged:", {
+          refineTaskId: existingData.refineTaskId,
+          podcastUrl: existingData.podcastUrl,
+          bgmUrl: existingData.bgmUrl
+        });
       } else {
         console.log("ℹ️ No existing data found, will create new");
       }
@@ -358,10 +364,20 @@ export async function POST(request: Request) {
       console.log("✅ BGM uploaded:", bgmUrl);
     }
 
-    const updatedStory = story || existingData.story;
-    const updatedOrnamentName = ornamentName || existingData.ornamentName;
-    const updatedPodcastScript = podcastScript || existingData.podcastScript;
-    const updatedEmotion = emotion || existingData.emotion;
+    // formData에 값이 있으면 사용, 없으면 기존 값 유지
+    const updatedStory = story !== null ? story : existingData.story;
+    const updatedOrnamentName = ornamentName !== null ? ornamentName : existingData.ornamentName;
+    const updatedPodcastScript = podcastScript !== null ? podcastScript : existingData.podcastScript;
+    const updatedEmotion = emotion !== null ? emotion : existingData.emotion;
+
+    console.log("🔧 Before creating letterData:", {
+      podcastUrl_variable: podcastUrl,
+      bgmUrl_variable: bgmUrl,
+      existingData_podcastUrl: existingData.podcastUrl,
+      existingData_bgmUrl: existingData.bgmUrl,
+      refineTaskId_variable: refineTaskId,
+      existingData_refineTaskId: existingData.refineTaskId
+    });
 
     const letterData = {
       ...existingData,
@@ -370,13 +386,14 @@ export async function POST(request: Request) {
       story: updatedStory,
       podcastScript: updatedPodcastScript,
       emotion: updatedEmotion,
-      imageUrl,
-      extractedObject,
-      asset3dUrl,
-      meshyTaskId,
-      refineTaskId,
-      podcastUrl,
-      bgmUrl,
+      // 새로 업로드된 값이 있으면 사용, 없으면 기존 값 유지
+      imageUrl: imageUrl !== null ? imageUrl : existingData.imageUrl,
+      extractedObject: extractedObject !== null ? extractedObject : existingData.extractedObject,
+      asset3dUrl: asset3dUrl !== null ? asset3dUrl : existingData.asset3dUrl,
+      meshyTaskId: meshyTaskId !== null ? meshyTaskId : existingData.meshyTaskId,
+      refineTaskId: refineTaskId !== null ? refineTaskId : existingData.refineTaskId,
+      podcastUrl: podcastUrl !== null ? podcastUrl : existingData.podcastUrl,
+      bgmUrl: bgmUrl !== null ? bgmUrl : existingData.bgmUrl,
       updatedAt: new Date().toISOString(),
     };
 
