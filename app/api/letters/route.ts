@@ -119,7 +119,7 @@ async function createMeshyTask({
     const requestBody = {
       mode: "preview",
       prompt: prompt,
-      ai_model: "meshy-6",
+      ai_model: "latest",
       topology: "triangle",
       target_polycount: 200,
       should_remesh: true,
