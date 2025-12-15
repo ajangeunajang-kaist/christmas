@@ -256,8 +256,14 @@ export async function POST(request: Request) {
 
     let asset3dUrl = existingData.asset3dUrl;
     let meshyTaskId = existingData.meshyTaskId || null;
-    let refineTaskId = refineTaskIdFromForm || existingData.refineTaskId || null;
+    let refineTaskId = existingData.refineTaskId;  // 기존 값 유지
     let extractedObject = existingData.extractedObject || null;
+
+    // formData에서 받은 refineTaskId가 있으면 사용
+    if (refineTaskIdFromForm) {
+      refineTaskId = refineTaskIdFromForm;
+      console.log("✅ Refine task ID from form:", refineTaskId);
+    }
 
     if (asset3d) {
       console.log("🔄 Uploading 3D asset...");
