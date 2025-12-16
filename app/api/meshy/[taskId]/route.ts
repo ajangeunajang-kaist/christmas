@@ -155,6 +155,9 @@ export async function GET(
           console.log("🎨 Refine task completed, downloading GLB...");
           console.log("✅ Condition met: letterData.refineTaskId === taskId:", letterData.refineTaskId === taskId);
           console.log("✅ model_urls.glb exists:", !!status.model_urls?.glb);
+          console.log("📍 letterData.refineTaskId:", letterData.refineTaskId);
+          console.log("📍 taskId:", taskId);
+          console.log("📍 asset3dUrl before:", letterData.asset3dUrl);
 
           const glbUrl = status.model_urls.glb;
 
@@ -208,10 +211,62 @@ export async function GET(
           console.log("📝 Updated letter data:", JSON.stringify(updatedLetterData, null, 2));
         } else {
           console.log("⚠️ Condition not met for GLB download:");
+          console.log("  - letterData.meshyTaskId === taskId:", letterData.meshyTaskId === taskId);
+          console.log("  - letterData.meshyTaskId:", letterData.meshyTaskId);
           console.log("  - letterData.refineTaskId === taskId:", letterData.refineTaskId === taskId);
           console.log("  - letterData.refineTaskId:", letterData.refineTaskId);
           console.log("  - taskId:", taskId);
           console.log("  - status.model_urls?.glb exists:", !!status.model_urls?.glb);
+          console.log("  - letterData.asset3dUrl:", letterData.asset3dUrl);
+
+          // 만약 refine task가 완료되었는데 asset3dUrl이 없고 GLB URL이 있다면 재시도
+          if (letterData.refineTaskId === taskId && !letterData.asset3dUrl && status.model_urls?.glb) {
+            console.log("🔄 Retrying GLB download for refine task...");
+            try {
+              const glbUrl = status.model_urls.glb;
+              console.log("⬇️ Downloading GLB from:", glbUrl);
+              const glbRes = await fetch(glbUrl);
+              if (!glbRes.ok) {
+                console.error("❌ GLB download failed:", glbRes.status, glbRes.statusText);
+              } else {
+                const glbBuffer = Buffer.from(await glbRes.arrayBuffer());
+                console.log("✅ GLB downloaded, size:", glbBuffer.length, "bytes");
+
+                const timestamp = Date.now();
+                const blob = await put(
+                  `3d-assets/${taskId}_${timestamp}.glb`,
+                  glbBuffer,
+                  {
+                    access: "public",
+                    contentType: "model/gltf-binary",
+                    allowOverwrite: true,
+                    token: BLOB_TOKEN,
+                  }
+                );
+
+                result.asset3dUrl = blob.url;
+                console.log("✅ 3D asset uploaded to blob:", blob.url);
+
+                const updatedLetterData = {
+                  ...letterData,
+                  asset3dUrl: blob.url,
+                  updatedAt: new Date().toISOString(),
+                };
+
+                console.log("💾 Updating letter data with asset3dUrl...");
+                await put(`letters/${ornamentId}.json`, JSON.stringify(updatedLetterData), {
+                  access: "public",
+                  contentType: "application/json",
+                  allowOverwrite: true,
+                  token: BLOB_TOKEN,
+                });
+
+                console.log("✅ Letter data updated with asset3dUrl (retry):", blob.url);
+              }
+            } catch (retryError) {
+              console.error("❌ Retry GLB download failed:", retryError);
+            }
+          }
         }
       } else {
         console.error("❌ No letter data found for ornamentId:", ornamentId);

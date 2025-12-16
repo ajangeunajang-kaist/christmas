@@ -429,7 +429,28 @@ export async function GET() {
       })
     );
 
-    return NextResponse.json({ success: true, data: letters });
+    // 커스텀 순서 정의 (원하는 순서대로 배치)
+    const CUSTOM_ORDER = [
+      "ornament_1765809199791_g5d2tabla",
+      "ornament_1765803109037_h0csus9x7",
+      "ornament_1765736454433_wtn842iha",
+      "ornament_1765804062175_v6icxk67c",
+      "ornament_1765810669345_980xlkts5",
+    ];
+
+    // 커스텀 순서대로 정렬
+    const sortedLetters = letters.sort((a, b) => {
+      const indexA = CUSTOM_ORDER.indexOf(a.id);
+      const indexB = CUSTOM_ORDER.indexOf(b.id);
+
+      // 목록에 없는 항목은 뒤로 보냄
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+
+      return indexA - indexB;
+    });
+
+    return NextResponse.json({ success: true, data: sortedLetters });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Failed to fetch" },
